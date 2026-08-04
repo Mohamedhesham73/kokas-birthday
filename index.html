@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="robots" content="noindex, nofollow"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>KOKA — Welcome to Dreamland</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✈️</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<style>
+:root{--ocean:#D14D8B;--ocean2:#F26FA6;--ocean3:#E0C3FC;--teal:#C9A7F0;--navy:#241546;--navy2:#1A1030;--sunset:#F2789B;--sunset2:#FF9EC4;--sunset3:#FFCBA5;--gold:#F0B03E;--gold2:#FFD8A8;--sage:#5FBF9A;--sage2:#A8E6CF;--cream:#FFF3F8;--cream2:#F6DCEA;--white:#FFFBFD;--dark:#2E2140;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{font-family:'DM Sans',sans-serif;background:var(--navy2);min-height:100vh;overflow-x:hidden;color:var(--cream);-webkit-text-size-adjust:100%;touch-action:manipulation;}
+/* FIX 1: canvases above ALL screens */
+#conf-canvas{position:fixed;inset:0;z-index:9700;pointer-events:none;display:none;}
+#conf-canvas.show{display:block;}
+#fw-canvas{position:fixed;inset:0;z-index:9699;pointer-events:none;display:none;}
+#fw-canvas.show{display:block;}
+#skip-btn{position:fixed;top:max(14px,env(safe-area-inset-top));right:14px;z-index:9850;display:none;background:rgba(26,16,48,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(224,195,252,0.4);color:#E0C3FC;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;padding:9px 16px;border-radius:50px;cursor:pointer;min-height:38px;-webkit-tap-highlight-color:transparent;animation:skipFade 0.6s 0.4s ease both;}
+#skip-btn.show{display:block;}
+#skip-btn:active{background:rgba(224,195,252,0.22);}
+@keyframes skipFade{from{opacity:0}to{opacity:0.85}}
+#board-screen{position:fixed;inset:0;z-index:9800;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;cursor:pointer;overflow-y:auto;}
+#board-screen.out{animation:boardOut 0.6s ease forwards;pointer-events:none;}
+@keyframes boardOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.05)}}
+.board-airline{font-family:'Bebas Neue',sans-serif;font-size:clamp(10px,3vw,12px);letter-spacing:6px;color:rgba(245,166,35,0.5);margin-bottom:10px;}
+.board-plane{font-size:clamp(36px,10vw,52px);animation:planeBob 2s ease-in-out infinite;filter:drop-shadow(0 0 16px rgba(245,166,35,0.4));margin-bottom:16px;}
+@keyframes planeBob{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-8px) rotate(5deg)}}
+.board-card{background:var(--cream);border-radius:16px;width:100%;max-width:360px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);animation:cardReveal 0.8s 0.3s cubic-bezier(0.34,1.56,0.64,1) both;}
+@keyframes cardReveal{from{opacity:0;transform:translateY(30px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+.board-card-top{padding:20px 18px;}
+.board-route{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.board-city{text-align:center;}
+.board-city-code{font-family:'Bebas Neue',sans-serif;font-size:clamp(26px,8vw,36px);color:var(--navy);letter-spacing:2px;line-height:1;}
+.board-city-name{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ocean);margin-top:2px;}
+.board-arrow{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);}
+.board-divider{height:1px;background:linear-gradient(90deg,transparent,var(--cream2),transparent);margin-bottom:14px;position:relative;}
+.board-divider::before,.board-divider::after{content:'';position:absolute;top:50%;transform:translateY(-50%);width:14px;height:14px;border-radius:50%;background:#000;}
+.board-divider::before{left:-24px;}.board-divider::after{right:-24px;}
+.board-details{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.board-detail{text-align:left;}
+.bd-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--ocean);margin-bottom:3px;}
+.bd-val{font-family:'Bebas Neue',sans-serif;font-size:clamp(14px,4vw,18px);color:var(--navy);letter-spacing:1px;}
+.board-card-bottom{background:var(--navy);padding:14px 18px;border-top:2px dashed rgba(224,195,252,0.2);display:flex;flex-direction:column;align-items:center;gap:8px;}
+.board-barcode{display:flex;align-items:stretch;gap:2px;height:36px;}
+.board-bar{background:var(--cream);flex-shrink:0;opacity:0.8;border-radius:1px;}
+.board-tap-label{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:4px;color:var(--gold2);}
+.board-pulse{margin-top:16px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.3);animation:bPulse 1.5s ease-in-out infinite;}
+@keyframes bPulse{0%,100%{opacity:0.3}50%{opacity:0.8}}
+#ready-screen{position:fixed;inset:0;z-index:9500;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden;}
+#ready-screen.show{display:flex;}
+#ready-screen.out{animation:readyOut 0.8s ease forwards;pointer-events:none;}
+@keyframes readyOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.06)}}
+.rdy-line{width:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold2),transparent);margin:0 auto 14px;transition:width 0.8s ease;}
+.rdy-line.grow{width:min(260px,65vw);}
+.ladies-text{font-family:'Bebas Neue',sans-serif;font-size:clamp(12px,3.5vw,20px);letter-spacing:6px;color:rgba(255,255,255,0);margin-bottom:8px;transition:color 0.6s ease;position:relative;z-index:2;}
+.ladies-text.lit{color:rgba(255,255,255,0.55);}
+.ready-text{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,8vw,64px);letter-spacing:6px;color:rgba(255,255,255,0);transition:color 0.5s ease,text-shadow 0.5s ease;margin-bottom:14px;position:relative;z-index:2;}
+.ready-text.lit{color:var(--gold2);text-shadow:0 0 40px rgba(255,209,102,0.8),0 0 80px rgba(255,209,102,0.4);}
+/* FIX 3: countdown nums fixed position, away from center */
+.countdown-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(80px,22vw,160px);line-height:1;position:fixed;opacity:0;transform:scale(1.4);transition:opacity 0.13s ease,transform 0.13s ease;text-shadow:0 0 60px currentColor;pointer-events:none;z-index:9501;}
+.countdown-num.show{opacity:1;transform:scale(1);}
+.countdown-num.hide{opacity:0;transform:scale(0.5);}
+#plane-screen{position:fixed;inset:0;z-index:8000;background:#160C2E;display:none;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:20px;}
+#plane-screen.show{display:flex;}
+#plane-screen.out{animation:planeOut 1.2s ease forwards;}
+@keyframes planeOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.08);pointer-events:none}}
+.cloud{position:absolute;background:rgba(255,255,255,0.06);border-radius:50px;animation:cloudDrift linear infinite;}
+@keyframes cloudDrift{from{transform:translateX(110vw)}to{transform:translateX(-110vw)}}
+.window-frame{position:relative;z-index:2;width:min(260px,76vw);height:min(330px,58vh);border-radius:50% 50% 40% 40%/40% 40% 30% 30%;border:8px solid rgba(255,255,255,0.12);overflow:hidden;box-shadow:0 0 0 16px rgba(26,16,48,0.85),0 0 60px rgba(0,0,0,0.5);background:linear-gradient(180deg,#8B5FB0 0%,#B98FD8 30%,#E0B3E8 52%,rgba(255,180,210,0.4) 80%,rgba(255,150,190,0.5) 100%);animation:windowReveal 1.5s ease both;}
+@keyframes windowReveal{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+.win-cloud{position:absolute;background:rgba(255,255,255,0.85);border-radius:50px;animation:winCloud linear infinite;}
+@keyframes winCloud{from{transform:translateX(120%)}to{transform:translateX(-120%)}}
+.window-text{position:absolute;bottom:20%;left:50%;transform:translateX(-50%);text-align:center;z-index:3;white-space:nowrap;}
+.wt-small{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:6px;animation:fadeIn 1s 1.5s ease both;}
+.wt-big{font-family:'Playfair Display',serif;font-size:clamp(13px,3.8vw,22px);font-style:italic;color:white;text-shadow:0 2px 12px rgba(0,0,0,0.5);animation:fadeIn 1s 2s ease both;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.flight-info{position:relative;z-index:2;margin-top:20px;text-align:center;animation:fadeIn 1s 1s ease both;}
+.fi-row{display:flex;gap:20px;justify-content:center;margin-bottom:10px;}
+.fi-item{text-align:center;}
+.fi-label{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:4px;}
+.fi-val{font-family:'Bebas Neue',sans-serif;font-size:clamp(16px,4.5vw,22px);color:rgba(255,255,255,0.8);letter-spacing:2px;}
+.fi-plane{font-size:18px;animation:planeWiggle 2s ease-in-out infinite;display:inline-block;}
+@keyframes planeWiggle{0%,100%{transform:rotate(-5deg) translateY(0)}50%{transform:rotate(5deg) translateY(-4px)}}
+#analyzer-screen{position:fixed;inset:0;z-index:7000;background:var(--navy2);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;text-align:center;overflow-y:auto;}
+#analyzer-screen.show{display:flex;}
+.az-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(16px,5vw,26px);letter-spacing:4px;color:var(--ocean3);margin-bottom:6px;}
+.az-sub{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(224,195,252,0.5);margin-bottom:24px;}
+.az-item{display:flex;align-items:center;gap:10px;width:100%;max-width:340px;margin-bottom:12px;opacity:0;transform:translateX(-16px);transition:all 0.5s ease;}
+.az-item.show{opacity:1;transform:translateX(0);}
+.az-label{font-size:11px;color:var(--cream2);letter-spacing:1px;flex:1;text-align:left;white-space:nowrap;}
+.az-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;}
+.az-bar{height:100%;border-radius:99px;width:0%;transition:width 1.2s cubic-bezier(0.34,1.56,0.64,1);}
+.az-pct{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--gold2);min-width:36px;}
+.az-results{margin-top:20px;opacity:0;transition:opacity 0.6s ease;display:flex;flex-direction:column;gap:8px;max-width:340px;width:100%;}
+.az-results.show{opacity:1;}
+.az-result-card{background:rgba(255,255,255,0.04);border:1px solid rgba(224,195,252,0.2);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;}
+.arc-emoji{font-size:18px;flex-shrink:0;}
+.arc-text{font-family:'Playfair Display',serif;font-size:clamp(12px,3.5vw,14px);font-style:italic;color:var(--cream);}
+#app{display:none;}
+#app.visible{display:block;}
+.hero{min-height:100svh;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px 60px;text-align:center;}
+.hero-bg{position:absolute;inset:0;background:linear-gradient(180deg,#1A1030 0%,#3B2A6B 22%,#8B5FB0 45%,#E86FA8 68%,#FFB3C8 84%,#FFD8A8 100%);}
+/* Her photo fills the hero; if koka.jpeg is missing, the gradient in .hero-bg shows instead. Tweak background-position to frame her face. */
+.hero-bg-img{position:absolute;inset:0;background-image:url('./koka.jpeg');background-size:cover;background-position:center 22%;}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(26,16,48,0.55) 0%,rgba(26,16,48,0.22) 35%,rgba(26,16,48,0.45) 62%,rgba(26,16,48,0.92) 100%);}
+.mountain-wrap{position:absolute;bottom:0;left:0;right:0;z-index:1;}
+.hero-content{position:relative;z-index:2;}
+.hero-welcome{font-size:clamp(8px,2.5vw,10px);letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:8px;animation:fadeUp 0.8s 0.2s ease both;}
+.hero-city{font-family:'Bebas Neue',sans-serif;font-size:clamp(46px,14vw,110px);letter-spacing:4px;line-height:0.9;color:white;margin-bottom:4px;animation:fadeUp 0.8s 0.3s ease both;text-shadow:0 4px 24px rgba(0,0,0,0.4);}
+.hero-city span{color:var(--gold2);}
+.hero-for{font-family:'Playfair Display',serif;font-size:clamp(12px,3.5vw,20px);font-style:italic;color:rgba(255,255,255,0.7);margin-bottom:12px;animation:fadeUp 0.8s 0.4s ease both;}
+.hero-name{font-family:'Playfair Display',serif;font-size:clamp(46px,14vw,96px);font-weight:900;font-style:italic;background:linear-gradient(135deg,var(--sunset),var(--teal),var(--gold2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:10px;animation:fadeUp 0.8s 0.5s ease both;filter:drop-shadow(0 4px 20px rgba(245,166,35,0.4));}
+.hero-bday{font-size:clamp(9px,2.8vw,14px);letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:24px;animation:fadeUp 0.8s 0.6s ease both;}
+.hero-badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;animation:fadeUp 0.8s 0.7s ease both;}
+.hero-badge{padding:6px 12px;border-radius:50px;font-size:10px;font-weight:500;letter-spacing:1px;backdrop-filter:blur(8px);}
+.hb-ocean{background:rgba(155,95,208,0.30);border:1px solid rgba(224,195,252,0.45);color:var(--ocean3);}
+.hb-sunset{background:rgba(242,120,155,0.28);border:1px solid rgba(255,158,196,0.45);color:var(--sunset3);}
+.hb-gold{background:rgba(240,176,62,0.28);border:1px solid rgba(255,216,168,0.45);color:var(--gold2);}
+.scroll-hint{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.4);animation:fadeUp 1s 1.2s ease both,bob 2s 2s ease-in-out infinite;white-space:nowrap;}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.countdown-section{background:var(--navy);padding:24px 16px;text-align:center;border-top:2px solid rgba(224,195,252,0.2);border-bottom:2px solid rgba(242,120,155,0.2);}
+.cd-eyebrow{font-size:8px;letter-spacing:5px;text-transform:uppercase;color:var(--ocean3);margin-bottom:14px;}
+.cd-row{display:flex;gap:6px;justify-content:center;}
+.cd-box{background:rgba(255,255,255,0.04);border:1px solid rgba(224,195,252,0.15);border-radius:8px;padding:12px 6px;flex:1;max-width:80px;text-align:center;}
+.cd-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,7vw,44px);color:var(--gold2);line-height:1;display:block;text-shadow:0 0 20px rgba(255,209,102,0.4);}
+.cd-unit{font-size:7px;letter-spacing:2px;text-transform:uppercase;color:rgba(224,195,252,0.4);margin-top:4px;display:block;}
+.cd-sep{font-size:clamp(18px,5vw,28px);color:rgba(245,166,35,0.3);align-self:center;flex-shrink:0;}
+.destinations{padding:32px 16px;}
+.dest-title{font-family:'Playfair Display',serif;font-size:clamp(20px,6vw,34px);font-style:italic;color:var(--cream);text-align:center;margin-bottom:6px;}
+.dest-sub{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(224,195,252,0.5);text-align:center;margin-bottom:20px;}
+.dest-grid{display:flex;flex-direction:column;gap:12px;}
+.dest-card{border-radius:16px;overflow:hidden;cursor:pointer;position:relative;min-height:100px;transition:transform 0.2s;border:1px solid rgba(255,255,255,0.08);}
+.dest-card:active{transform:scale(0.97);}
+.dest-card-bg{position:absolute;inset:0;}
+.dest-card-overlay{position:absolute;inset:0;}
+.dest-card-content{position:relative;z-index:2;padding:16px 14px;display:flex;align-items:flex-end;justify-content:space-between;min-height:100px;}
+.dc-left{flex:1;}
+.dc-location{font-size:8px;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:4px;}
+.dc-name{font-family:'Playfair Display',serif;font-size:clamp(15px,4.5vw,22px);font-style:italic;font-weight:700;color:white;}
+.dc-tap{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-top:3px;}
+.dc-arrow{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.dc-letter .dest-card-bg{background:linear-gradient(135deg,#6A4C93,#8B6BB1);}
+.dc-letter .dest-card-overlay{background:linear-gradient(135deg,rgba(40,24,72,0.55),rgba(139,107,177,0.2));}
+.dc-letter .dc-location{color:var(--ocean3);}
+.dc-gift .dest-card-bg{background:linear-gradient(135deg,#B23A76,#D14D8B);}
+.dc-gift .dest-card-overlay{background:linear-gradient(135deg,rgba(120,30,80,0.5),rgba(209,77,139,0.2));}
+.dc-gift .dc-location{color:#FFD6E8;}
+.dc-photos .dest-card-bg{background:linear-gradient(135deg,#2E7D6B,#4BA88C);}
+.dc-photos .dest-card-overlay{background:linear-gradient(135deg,rgba(24,70,58,0.5),rgba(75,168,140,0.2));}
+.dc-photos .dc-location{color:var(--sage2);}
+.dc-secret .dest-card-bg{background:linear-gradient(135deg,#3B2A6B,#5B3FA0);}
+.dc-secret .dest-card-overlay{background:linear-gradient(135deg,rgba(30,20,70,0.55),rgba(91,63,160,0.2));}
+.dc-secret .dc-location{color:var(--teal);}
+.section-page{position:fixed;inset:0;z-index:500;background:var(--cream);overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;color:var(--dark);padding-bottom:90px;}
+.section-page.open{display:block;animation:pageIn 0.45s ease;}
+@keyframes pageIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.page-nav{position:sticky;top:0;z-index:10;background:var(--navy);padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:2px solid var(--ocean);}
+.back-btn{background:transparent;border:1px solid rgba(224,195,252,0.3);color:var(--ocean3);font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:8px 14px;cursor:pointer;border-radius:50px;min-height:36px;display:flex;align-items:center;}
+.back-btn:active{background:rgba(224,195,252,0.1);}
+.page-nav-title{font-family:'Playfair Display',serif;font-size:clamp(13px,3.5vw,19px);font-style:italic;color:var(--cream);flex:1;text-align:center;}
+.letter-hero{padding:24px 18px;background:var(--cream);}
+.lh-location{font-size:8px;letter-spacing:4px;text-transform:uppercase;color:var(--ocean);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.lh-title{font-family:'Playfair Display',serif;font-size:clamp(17px,5vw,28px);font-style:italic;font-weight:700;color:var(--navy);margin-bottom:20px;}
+.envelope-wrap{text-align:center;margin-bottom:24px;cursor:pointer;}
+.env-box{display:inline-block;position:relative;width:180px;height:126px;filter:drop-shadow(0 8px 24px rgba(13,33,55,0.15));}
+.env-body-el{position:absolute;bottom:0;left:0;right:0;height:106px;background:var(--navy);border:1px solid rgba(209,77,139,0.3);border-radius:0 0 8px 8px;}
+.env-flap-el{position:absolute;top:0;left:0;width:0;height:0;border-left:90px solid transparent;border-right:90px solid transparent;border-top:62px solid var(--navy2);transform-origin:top center;transition:transform 0.9s cubic-bezier(0.34,1.56,0.64,1);z-index:2;}
+.env-flap-el.open{transform:rotateX(180deg);}
+.env-seal-el{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--ocean),var(--teal));display:flex;align-items:center;justify-content:center;font-size:16px;z-index:3;box-shadow:0 0 0 4px rgba(209,77,139,0.2);}
+.env-hint{font-family:'Playfair Display',serif;font-size:14px;font-style:italic;color:var(--navy2);margin-top:12px;animation:hintPulse 2s ease-in-out infinite;}
+@keyframes hintPulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.letter-reveal{max-height:0;overflow:hidden;transition:max-height 1s ease;padding:0 18px;}
+.letter-reveal.open{max-height:9999px;}
+.letter-paper{background:var(--white);border:1px solid var(--cream2);padding:24px 20px;border-radius:4px;position:relative;box-shadow:0 4px 24px rgba(13,33,55,0.08);}
+.letter-paper::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--ocean),var(--teal),var(--sunset));border-radius:4px 4px 0 0;}
+.letter-from{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--ocean);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.letter-from::after{content:'';flex:1;height:1px;background:var(--cream2);}
+.letter-name{font-family:'Playfair Display',serif;font-size:clamp(17px,5vw,28px);font-weight:700;font-style:italic;color:var(--navy);display:block;margin-bottom:16px;}
+.letter-body{font-family:'Playfair Display',serif;font-size:clamp(14px,3.8vw,17px);font-weight:400;font-style:italic;line-height:2;color:#3A2A4A;min-height:60px;}
+.letter-body p{margin-bottom:16px;}
+.letter-body p:last-child{margin-bottom:0;}
+.letter-last{font-family:'Playfair Display',serif;font-size:15px;font-style:italic;font-weight:700;color:var(--ocean);margin-top:20px;display:block;}
+.cursor{display:inline-block;width:2px;height:1em;background:var(--ocean);margin-left:2px;vertical-align:text-bottom;animation:blink 0.8s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.timeline-section{background:var(--navy);padding:24px 18px;}
+.tl-eyebrow{font-size:8px;letter-spacing:4px;text-transform:uppercase;color:var(--ocean3);margin-bottom:20px;}
+.timeline{position:relative;}
+.timeline::before{content:'';position:absolute;left:22px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--ocean),var(--sunset),var(--gold));}
+.tl-item{display:flex;gap:14px;margin-bottom:28px;}
+.tl-dot{width:44px;height:44px;border-radius:50%;flex-shrink:0;background:var(--navy2);border:2px solid var(--ocean);display:flex;align-items:center;justify-content:center;font-size:18px;z-index:1;}
+.tl-body{flex:1;padding-top:4px;}
+.tl-label{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--ocean3);margin-bottom:4px;}
+.tl-text{font-family:'Playfair Display',serif;font-size:clamp(13px,3.5vw,16px);font-style:italic;color:var(--cream2);line-height:1.8;}
+.gift-section{padding:24px 18px;text-align:center;background:var(--cream);}
+.gift-location{font-size:8px;letter-spacing:4px;text-transform:uppercase;color:var(--sunset);margin-bottom:6px;text-align:left;display:flex;align-items:center;gap:6px;}
+.gift-title{font-family:'Playfair Display',serif;font-size:clamp(17px,5vw,28px);font-style:italic;font-weight:700;color:var(--navy);margin-bottom:20px;text-align:left;}
+.gift-box-wrap{display:inline-block;cursor:pointer;margin-bottom:16px;}
+.gift-3d{width:160px;height:144px;position:relative;filter:drop-shadow(0 12px 32px rgba(242,120,155,0.3));transition:transform 0.2s;}
+.gift-3d:active{transform:scale(0.97);}
+.gift-lid-el{position:absolute;top:0;left:0;right:0;height:42px;background:linear-gradient(135deg,var(--sunset),var(--sunset2));border:2px solid rgba(245,166,35,0.3);transform-origin:top center;transition:transform 0.9s cubic-bezier(0.34,1.56,0.64,1);z-index:2;}
+.gift-lid-el.open{transform:rotateX(-130deg) translateY(-10px);}
+.gift-bow-el{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:28px;z-index:3;filter:drop-shadow(0 0 8px rgba(245,166,35,0.6));}
+.gift-body-el{position:absolute;bottom:0;left:0;right:0;height:110px;background:linear-gradient(160deg,var(--sunset),#9B3B6E);border:2px solid rgba(245,166,35,0.2);}
+.gift-rv{position:absolute;left:50%;transform:translateX(-50%);top:0;bottom:0;width:20px;background:linear-gradient(90deg,rgba(245,166,35,0.5),rgba(255,209,102,0.7),rgba(245,166,35,0.5));}
+.gift-rh{position:absolute;top:50%;transform:translateY(-50%);left:0;right:0;height:20px;background:linear-gradient(180deg,rgba(245,166,35,0.5),rgba(255,209,102,0.7),rgba(245,166,35,0.5));}
+.gift-hint{font-family:'Playfair Display',serif;font-size:14px;font-style:italic;color:var(--navy2);margin-bottom:16px;animation:hintPulse 2s ease-in-out infinite;}
+.videos-reveal{max-height:0;overflow:hidden;transition:max-height 0.8s ease;}
+.videos-reveal.open{max-height:9999px;}
+.videos-intro{font-family:'Playfair Display',serif;font-size:clamp(14px,4vw,19px);font-style:italic;color:var(--navy2);text-align:center;margin-bottom:20px;line-height:1.7;}
+.videos-list{display:flex;flex-direction:column;gap:12px;}
+.video-card{background:var(--white);border:1px solid var(--cream2);border-radius:14px;overflow:hidden;position:relative;}
+.video-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--ocean),var(--sunset));}
+.video-header{padding:12px 14px;display:flex;align-items:center;gap:10px;}
+.video-avatar{width:36px;height:36px;border-radius:50%;background:var(--navy);border:2px solid var(--ocean);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.video-name{font-family:'Playfair Display',serif;font-size:15px;font-style:italic;color:var(--navy);}
+.video-card video{width:100%;display:block;max-height:260px;object-fit:cover;}
+.video-sub{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--ocean);margin-top:3px;}
+.video-card audio{width:calc(100% - 28px);margin:0 14px 16px;display:block;}
+.photos-section{padding:24px 16px;background:var(--cream);}
+.photos-location{font-size:8px;letter-spacing:4px;text-transform:uppercase;color:var(--sage);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.photos-title{font-family:'Playfair Display',serif;font-size:clamp(17px,5vw,28px);font-style:italic;font-weight:700;color:var(--navy);margin-bottom:16px;}
+.photos-grid{columns:2;gap:10px;}
+.photo-item{break-inside:avoid;margin-bottom:10px;background:var(--white);border:1px solid var(--cream2);padding:6px 6px 22px;box-shadow:0 4px 16px rgba(0,0,0,0.06);}
+.photo-item img{width:100%;display:block;}
+.photo-cap{font-family:'Playfair Display',serif;font-size:10px;font-style:italic;color:var(--navy2);text-align:center;margin-top:6px;}
+.secret-section{padding:48px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;min-height:calc(100vh - 56px);justify-content:center;background:var(--cream);}
+.secret-icon{font-size:56px;margin-bottom:16px;animation:secretFloat 3s ease-in-out infinite;}
+@keyframes secretFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.secret-headline{font-family:'Playfair Display',serif;font-size:clamp(20px,6vw,36px);font-weight:700;font-style:italic;color:var(--navy);margin-bottom:10px;}
+.secret-sub{font-family:'Playfair Display',serif;font-size:clamp(13px,3.5vw,17px);font-style:italic;color:var(--navy2);line-height:1.8;max-width:300px;margin-bottom:32px;opacity:0.7;}
+.secret-paper{background:var(--white);border:1px solid var(--cream2);padding:24px 20px;width:100%;max-width:360px;position:relative;border-radius:4px;box-shadow:0 4px 24px rgba(13,33,55,0.08);}
+.secret-paper::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--ocean),var(--teal),var(--sunset));border-radius:4px 4px 0 0;}
+.secret-placeholder{font-family:'Playfair Display',serif;font-size:clamp(13px,3.8vw,17px);font-style:italic;color:rgba(13,33,55,0.25);line-height:2;text-align:center;padding:14px 0;}
+#music-bar{position:fixed;bottom:0;left:0;right:0;z-index:600;background:var(--navy2);border-top:2px solid var(--ocean);padding:8px 16px;padding-bottom:max(8px,env(safe-area-inset-bottom));display:none;align-items:center;gap:12px;}
+#music-bar.show{display:flex;}
+#viz-canvas{flex:1;height:30px;}
+.play-btn{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--ocean),var(--teal));border:none;cursor:pointer;color:white;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.music-info{display:flex;flex-direction:column;gap:2px;}
+.music-title-el{font-family:'Playfair Display',serif;font-size:12px;font-style:italic;color:var(--gold2);}
+.music-sub-el{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(224,195,252,0.4);}
+.final-badge-wrap{padding:32px 16px 80px;text-align:center;background:var(--navy);}
+.final-badge{display:inline-block;font-family:'Bebas Neue',sans-serif;font-size:clamp(15px,4.5vw,26px);letter-spacing:4px;padding:16px 28px;border-radius:60px;border:2px solid var(--gold2);color:var(--gold2);text-shadow:0 0 20px rgba(255,209,102,0.4);box-shadow:0 0 40px rgba(245,166,35,0.15);background:rgba(245,166,35,0.05);animation:badgePulse 2.5s ease-in-out infinite;}
+@keyframes badgePulse{0%,100%{box-shadow:0 0 40px rgba(245,166,35,0.15)}50%{box-shadow:0 0 70px rgba(245,166,35,0.4)}}
+/* Finale — unlocked once all four dreamland stops have been opened */
+.dest-card.visited::after{content:'✓';position:absolute;top:10px;right:10px;z-index:3;width:24px;height:24px;border-radius:50%;background:var(--sage2);color:#1A1030;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);}
+.dest-card.locked{opacity:0.5;filter:grayscale(0.55);}
+.dest-card.locked::after{content:'🔒';position:absolute;top:10px;right:10px;z-index:3;width:26px;height:26px;border-radius:50%;background:rgba(26,16,48,0.85);border:1px solid rgba(224,195,252,0.35);font-size:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);}
+.dest-card.shake{animation:cardShake 0.42s ease;}
+@keyframes cardShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.dest-card.just-unlocked{animation:cardUnlock 0.7s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes cardUnlock{0%{transform:scale(1)}45%{transform:scale(1.04)}100%{transform:scale(1)}}
+#lock-toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(10px);z-index:650;background:rgba(26,16,48,0.92);border:1px solid rgba(224,195,252,0.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#E0C3FC;font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:1px;padding:11px 20px;border-radius:50px;opacity:0;pointer-events:none;transition:opacity 0.3s ease,transform 0.3s ease;max-width:88vw;text-align:center;}
+#lock-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#finale-screen{position:fixed;inset:0;z-index:9600;background:radial-gradient(120% 90% at 50% 28%,#3B2A6B 0%,#1A1030 68%);display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px 24px;overflow-y:auto;}
+#finale-screen.show{display:flex;animation:finaleIn 0.8s ease both;}
+@keyframes finaleIn{from{opacity:0}to{opacity:1}}
+.fin-eyebrow{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--ocean3);margin-bottom:18px;animation:fadeUp 0.8s 0.3s ease both;}
+.fin-name{font-family:'Playfair Display',serif;font-weight:900;font-style:italic;font-size:clamp(56px,20vw,150px);line-height:1;background:linear-gradient(135deg,var(--sunset),var(--teal),var(--gold2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 30px rgba(242,111,166,0.5));margin-bottom:20px;animation:finaleName 1s 0.45s cubic-bezier(0.34,1.56,0.64,1) both;}
+@keyframes finaleName{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+.fin-msg{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(15px,4.2vw,20px);color:var(--cream);line-height:1.9;max-width:440px;margin-bottom:22px;animation:fadeUp 0.9s 0.95s ease both;}
+.fin-bday{font-family:'Bebas Neue',sans-serif;font-size:clamp(16px,5vw,28px);letter-spacing:3px;color:var(--gold2);text-shadow:0 0 24px rgba(255,216,168,0.5);margin-bottom:30px;animation:fadeUp 0.9s 1.25s ease both;}
+.fin-close{background:transparent;border:1px solid rgba(224,195,252,0.4);color:var(--ocean3);font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:12px 22px;border-radius:50px;cursor:pointer;min-height:44px;-webkit-tap-highlight-color:transparent;animation:fadeUp 0.9s 1.55s ease both;}
+.fin-close:active{background:rgba(224,195,252,0.15);}
+/* Memories intro pop-up */
+#memories-popup{position:fixed;inset:0;z-index:700;background:rgba(26,16,48,0.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:28px;}
+#memories-popup.show{display:flex;animation:finaleIn 0.4s ease both;}
+.mem-pop-card{background:var(--white);border-radius:18px;max-width:400px;width:100%;padding:30px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.45);border-top:4px solid var(--ocean2);animation:cardReveal 0.5s cubic-bezier(0.34,1.56,0.64,1) both;}
+.mem-pop-icon{font-size:40px;margin-bottom:14px;}
+.mem-pop-text{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(14px,4vw,17px);line-height:1.85;color:var(--navy);margin-bottom:24px;}
+.mem-pop-btn{background:linear-gradient(135deg,var(--ocean),var(--ocean2));color:#fff;border:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:13px 30px;border-radius:50px;cursor:pointer;min-height:44px;-webkit-tap-highlight-color:transparent;}
+.mem-pop-btn:active{transform:scale(0.97);}
+@media(min-width:600px){.board-card{max-width:420px;}.dest-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}.photos-grid{columns:3;}.az-item,.az-results{max-width:420px;}.window-frame{width:min(300px,70vw);height:min(380px,65vh);}}
+@media(min-width:900px){.hero-city{font-size:clamp(80px,12vw,130px);}.hero-name{font-size:clamp(72px,10vw,110px);}.dest-card-content{padding:24px 20px;}}
+/* Tablet & desktop: keep the phone-native feel, cap + centre the content so it doesn't sprawl */
+@media(min-width:680px){
+  :root{--content-max:660px;}
+  .hero-content{max-width:760px;margin-left:auto;margin-right:auto;}
+  .cd-row{max-width:480px;margin-left:auto;margin-right:auto;}
+  .dest-title,.dest-sub,.dest-grid{max-width:var(--content-max);margin-left:auto;margin-right:auto;}
+  .letter-hero,.letter-reveal,.timeline-section,
+  .gift-section,.photos-section,.secret-section{max-width:var(--content-max);margin-left:auto;margin-right:auto;}
+  .timeline-section{border-radius:18px;}
+  #viz-canvas{max-width:420px;}
+}
+@media(min-width:1100px){
+  :root{--content-max:720px;}
+  .dest-grid{max-width:760px;}
+}
+</style>
+</head>
+<body>
+<canvas id="conf-canvas"></canvas>
+<canvas id="fw-canvas"></canvas>
+<button id="skip-btn" onclick="skipIntro()">Skip intro →</button>
+<div id="board-screen">
+  <div class="board-airline">✦ KOKA AIRWAYS ✦</div>
+  <div class="board-plane">✈️</div>
+  <div class="board-card">
+    <div class="board-card-top">
+      <div class="board-route">
+        <div class="board-city"><div class="board-city-code">CAI</div><div class="board-city-name">Reality</div></div>
+        <div class="board-arrow">→</div>
+        <div class="board-city"><div class="board-city-code">DREAM</div><div class="board-city-name">Dreamland</div></div>
+      </div>
+      <div class="board-divider"></div>
+      <div class="board-details">
+        <div class="board-detail"><div class="bd-label">Passenger</div><div class="bd-val">KOKA</div></div>
+        <div class="board-detail"><div class="bd-label">Date</div><div class="bd-val">Aug 12</div></div>
+        <div class="board-detail"><div class="bd-label">Class</div><div class="bd-val">ICON</div></div>
+        <div class="board-detail"><div class="bd-label">Seat</div><div class="bd-val">1A</div></div>
+      </div>
+    </div>
+    <div class="board-card-bottom">
+      <div class="board-barcode"><div class="board-bar" style="width:2px"></div><div class="board-bar" style="width:4px"></div><div class="board-bar" style="width:2px"></div><div class="board-bar" style="width:6px"></div><div class="board-bar" style="width:2px"></div><div class="board-bar" style="width:3px"></div><div class="board-bar" style="width:5px"></div><div class="board-bar" style="width:2px"></div><div class="board-bar" style="width:4px"></div><div class="board-bar" style="width:2px"></div><div class="board-bar" style="width:3px"></div><div class="board-bar" style="width:6px"></div><div class="board-bar" style="width:2px"></div><div class="board-bar" style="width:4px"></div><div class="board-bar" style="width:3px"></div></div>
+      <div class="board-tap-label">TAP TO BOARD</div>
+    </div>
+  </div>
+  <div class="board-pulse">tap your boarding pass ✦</div>
+</div>
+<div id="ready-screen">
+  <div class="rdy-line" id="rdy-line"></div>
+  <div class="ladies-text" id="ladies-text">LADIES AND GENTLEMEN</div>
+  <div class="ready-text" id="ready-text">ARE YOU READY?</div>
+  <div class="rdy-line" id="rdy-line2"></div>
+  <div class="countdown-num" id="cn10" style="color:var(--ocean3)">10</div>
+  <div class="countdown-num" id="cn9" style="color:var(--sunset2)">9</div>
+  <div class="countdown-num" id="cn8" style="color:var(--gold2)">8</div>
+  <div class="countdown-num" id="cn7" style="color:var(--teal)">7</div>
+  <div class="countdown-num" id="cn6" style="color:var(--sunset)">6</div>
+  <div class="countdown-num" id="cn5" style="color:var(--ocean3)">5</div>
+  <div class="countdown-num" id="cn4" style="color:var(--gold2)">4</div>
+  <div class="countdown-num" id="cn3" style="color:var(--sunset2)">3</div>
+  <div class="countdown-num" id="cn2" style="color:var(--teal)">2</div>
+  <div class="countdown-num" id="cn1" style="color:var(--sunset)">1</div>
+</div>
+<div id="plane-screen">
+  <div class="cloud" style="width:200px;height:60px;top:15%;left:-10%;animation-duration:18s"></div>
+  <div class="cloud" style="width:140px;height:40px;top:30%;left:-10%;animation-duration:22s;animation-delay:-8s"></div>
+  <div class="cloud" style="width:180px;height:50px;top:55%;left:-10%;animation-duration:16s;animation-delay:-4s"></div>
+  <div class="window-frame">
+    <div class="win-cloud" style="width:80px;height:24px;top:25%;animation-duration:8s"></div>
+    <div class="win-cloud" style="width:60px;height:18px;top:40%;animation-duration:12s;animation-delay:-3s"></div>
+    <svg style="position:absolute;bottom:0;width:100%" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg"><polygon points="0,120 60,40 120,80 150,30 180,70 240,20 300,60 300,120" fill="rgba(26,16,48,0.85)"/></svg>
+    <div class="window-text"><div class="wt-small">✈ Now arriving</div><div class="wt-big">Your Dreamland</div></div>
+  </div>
+  <div class="flight-info">
+    <div class="fi-row"><div class="fi-item"><div class="fi-label">From</div><div class="fi-val">Reality</div></div><div class="fi-item"><div class="fi-plane">✈️</div></div><div class="fi-item"><div class="fi-label">To</div><div class="fi-val">Dreamland</div></div></div>
+    <div class="fi-row"><div class="fi-item"><div class="fi-label">Passenger</div><div class="fi-val">KOKA</div></div><div class="fi-item"><div class="fi-label">Date</div><div class="fi-val">Aug 12</div></div><div class="fi-item"><div class="fi-label">Class</div><div class="fi-val">ICON</div></div></div>
+  </div>
+</div>
+<div id="analyzer-screen">
+  <div class="az-title">🛬 DREAMLAND CHECK-IN</div>
+  <div class="az-sub">Scanning Passenger · Please Wait</div>
+  <div class="az-item" id="az1"><span class="az-label">Scanning for greatness...</span><div class="az-bar-wrap"><div class="az-bar" id="ab1" style="background:linear-gradient(90deg,var(--ocean),var(--teal))"></div></div><span class="az-pct">100%</span></div>
+  <div class="az-item" id="az2"><span class="az-label">Detecting icon energy...</span><div class="az-bar-wrap"><div class="az-bar" id="ab2" style="background:linear-gradient(90deg,var(--sunset),var(--gold))"></div></div><span class="az-pct">100%</span></div>
+  <div class="az-item" id="az3"><span class="az-label">Measuring heart size...</span><div class="az-bar-wrap"><div class="az-bar" id="ab3" style="background:linear-gradient(90deg,var(--sunset),var(--sunset3))"></div></div><span class="az-pct">∞</span></div>
+  <div class="az-item" id="az4"><span class="az-label">Calculating stubbornness...</span><div class="az-bar-wrap"><div class="az-bar" id="ab4" style="background:linear-gradient(90deg,var(--sage),var(--sage2))"></div></div><span class="az-pct">99%</span></div>
+  <div class="az-item" id="az5"><span class="az-label">Checking dreamland magic...</span><div class="az-bar-wrap"><div class="az-bar" id="ab5" style="background:linear-gradient(90deg,var(--ocean2),var(--gold2))"></div></div><span class="az-pct">🌍</span></div>
+  <div class="az-results" id="az-results">
+    <div class="az-result-card"><span class="arc-emoji">✅</span><span class="arc-text">Identity confirmed: 100% that girl.</span></div>
+    <div class="az-result-card"><span class="arc-emoji">🏆</span><span class="arc-text">Classification: Unstoppable. Undeniable. Iconic.</span></div>
+    <div class="az-result-card"><span class="arc-emoji">🎂</span><span class="arc-text">Status: Turning 17 & absolutely thriving.</span></div>
+    <div class="az-result-card"><span class="arc-emoji">🌍</span><span class="arc-text">Dreamland verdict: She belongs here.</span></div>
+    <div class="az-result-card"><span class="arc-emoji">🩷</span><span class="arc-text">Final result: Loved. More than she knows.</span></div>
+  </div>
+</div>
+<div id="app">
+  <div id="music-bar"><button class="play-btn" id="play-btn" onclick="toggleMusic()">▶</button><canvas id="viz-canvas"></canvas><div class="music-info"><div class="music-title-el">Dreamland, for KOKA 🎂</div><div class="music-sub-el">August 12</div></div></div>
+  <div class="hero">
+    <div class="hero-bg"></div><div class="hero-bg-img"></div><div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-welcome">✈ You have arrived ✈</div>
+      <div class="hero-city">DREAM<span>LAND</span></div>
+      <div class="hero-for">This entire world is celebrating</div>
+      <div class="hero-name">KOKA</div>
+      <div class="hero-bday">🎂 August 12 · Turning 17 · Happy Birthday 🎂</div>
+      <div class="hero-badges"><div class="hero-badge hb-ocean">🌸 Endless Spring</div><div class="hero-badge hb-sunset">✨ Golden Hour</div><div class="hero-badge hb-gold">🏰 Her Own Castle</div></div>
+    </div>
+  </div>
+  <div class="countdown-section">
+    <div class="cd-eyebrow">✦ Countdown to August 12 ✦</div>
+    <div class="cd-row" id="cd-row">
+      <div class="cd-box"><span class="cd-num" id="cd-d">--</span><span class="cd-unit">Days</span></div><div class="cd-sep">:</div>
+      <div class="cd-box"><span class="cd-num" id="cd-h">--</span><span class="cd-unit">Hours</span></div><div class="cd-sep">:</div>
+      <div class="cd-box"><span class="cd-num" id="cd-m">--</span><span class="cd-unit">Mins</span></div><div class="cd-sep">:</div>
+      <div class="cd-box"><span class="cd-num" id="cd-s">--</span><span class="cd-unit">Secs</span></div>
+    </div>
+  </div>
+  <div class="destinations">
+    <div class="dest-title">Your Birthday Itinerary</div>
+    <div class="dest-sub">✦ Four stops made just for you ✦</div>
+    <div class="dest-grid">
+      <div class="dest-card dc-letter" onclick="openPage('letter-page')"><div class="dest-card-bg"></div><div class="dest-card-overlay"></div><div class="dest-card-content"><div class="dc-left"><div class="dc-location"><span class="dc-pin">📍</span><span style="color:var(--ocean3)">The Cloud Palace · Dreamland</span></div><div class="dc-name">Your Birthday Letter</div><div class="dc-tap">↗ Tap to read</div></div><div class="dc-arrow">☁️</div></div></div>
+      <div class="dest-card dc-gift locked" onclick="openPage('gift-page')"><div class="dest-card-bg"></div><div class="dest-card-overlay"></div><div class="dest-card-content"><div class="dc-left"><div class="dc-location"><span class="dc-pin">📍</span><span style="color:#FFD6E8">The Wishing Well · Dreamland</span></div><div class="dc-name">Your Birthday Gift</div><div class="dc-tap">↗ Tap to unwrap</div></div><div class="dc-arrow">✨</div></div></div>
+      <div class="dest-card dc-photos locked" onclick="openPage('photos-page')"><div class="dest-card-bg"></div><div class="dest-card-overlay"></div><div class="dest-card-content"><div class="dc-left"><div class="dc-location"><span class="dc-pin">📍</span><span style="color:var(--sage2)">The Memory Castle · Dreamland</span></div><div class="dc-name">Your Memories</div><div class="dc-tap">↗ Tap to see</div></div><div class="dc-arrow">🏰</div></div></div>
+      <div class="dest-card dc-secret locked" onclick="openPage('secret-page')"><div class="dest-card-bg"></div><div class="dest-card-overlay"></div><div class="dest-card-content"><div class="dc-left"><div class="dc-location"><span class="dc-pin">📍</span><span style="color:var(--teal)">The Moonlit Garden · Dreamland</span></div><div class="dc-name">Secret Message</div><div class="dc-tap">↗ Tap to unlock</div></div><div class="dc-arrow">🌙</div></div></div>
+    </div>
+  </div>
+  <div class="final-badge-wrap"><div class="final-badge">🌍 Happy 17th Birthday KOKA 🎂</div></div>
+</div>
+<div class="section-page" id="letter-page">
+  <div class="page-nav"><button class="back-btn" onclick="closePage('letter-page')">← Back</button><div class="page-nav-title">☁️ Your Letter</div></div>
+  <div class="letter-hero"><div class="lh-location">📍 The Cloud Palace · Dreamland</div><div class="lh-title">A letter waiting for you up in the clouds</div><div class="envelope-wrap" onclick="openEnvelope()"><div class="env-box"><div class="env-flap-el" id="env-flap"></div><div class="env-seal-el">💫</div><div class="env-body-el"></div></div><div class="env-hint" id="env-hint">Tap to open your letter 💌</div></div></div>
+  <div class="letter-reveal" id="letter-reveal"><div class="letter-paper"><div class="letter-from">A birthday letter from Dreamland</div><div class="letter-body" id="letter-body"></div></div></div>
+  <div class="timeline-section"><div class="tl-eyebrow">✦ Our Story · A Timeline</div><div class="timeline" id="timeline"></div></div>
+</div>
+<div class="section-page" id="gift-page">
+  <div class="page-nav"><button class="back-btn" onclick="closePage('gift-page')">← Back</button><div class="page-nav-title">✨ Your Gift</div></div>
+  <div class="gift-section">
+    <div class="gift-location">📍 The Wishing Well · Dreamland</div>
+    <div class="gift-title">Someone left this for you by the wishing well ✨</div>
+    <div class="gift-box-wrap" onclick="openGift()"><div class="gift-3d"><div class="gift-lid-el" id="gift-lid"><div class="gift-bow-el">🎀</div></div><div class="gift-body-el"><div class="gift-rv"></div><div class="gift-rh"></div></div></div></div>
+    <div class="gift-hint" id="gift-hint">Tap to unwrap 🎁</div>
+    <div class="videos-reveal" id="videos-reveal"><div class="videos-intro">"Everyone who loves you wanted<br/>to say something today. 🎂"</div><div class="videos-list" id="videos-list"></div></div>
+  </div>
+</div>
+<div class="section-page" id="photos-page">
+  <div class="page-nav"><button class="back-btn" onclick="closePage('photos-page')">← Back</button><div class="page-nav-title">🏰 Your Memories</div></div>
+  <div class="photos-section"><div class="photos-location">📍 The Memory Castle · Dreamland</div><div class="photos-title">Photos from the memory castle</div><div class="photos-grid" id="photos-grid"></div></div>
+</div>
+<div class="section-page" id="secret-page">
+  <div class="page-nav"><button class="back-btn" onclick="closePage('secret-page')">← Back</button><div class="page-nav-title">🌙 Secret Message</div></div>
+  <div class="secret-section"><div class="secret-icon">🌙</div><div class="secret-headline">Just For You, KOKA</div><div class="secret-sub">"From the highest cloud, looking over your whole dreamland — there's something I need to tell you."</div><div class="secret-paper"><div class="secret-placeholder">✦ Your secret message will appear here soon ✦<br/><br/>Mohamed is writing something just for you...</div></div></div>
+</div>
+<div id="lock-toast"></div>
+<div id="memories-popup">
+  <div class="mem-pop-card">
+    <div class="mem-pop-icon">💜</div>
+    <div class="mem-pop-text">i'm genuinely so sad that we don't have a lot of memories so i found that you have other memories with the ppl you love so i had to use it since we just have a few and tbh i found a lot of ppl who really loves you</div>
+    <button class="mem-pop-btn" onclick="closeMemoriesPopup()">okay 💜</button>
+  </div>
+</div>
+<div id="finale-screen">
+  <div class="fin-eyebrow">✦ You found every corner ✦</div>
+  <div class="fin-name">KOKA</div>
+  <div class="fin-msg">You explored every stop in your dreamland — and every single one was built just for you. 💫</div>
+  <div class="fin-bday">🎂 Happy 17th Birthday 🎂</div>
+  <button class="fin-close" onclick="closeFinale()">↩ Back to Dreamland</button>
+</div>
+<div id="letter-src" style="display:none">
+  <p data-type="name">My dearest KOKA,</p>
+  <p>Happy 17th Birthday. I hope you know that today, somewhere between the ocean and Table Mountain, the whole world feels a little bit brighter because you're in it.</p>
+  <p>i really dk what to say bas hartgel al klam delwa2ty first of all i had this idea of making that website for you since three months ago and don't ask why i just felt like i wanna do that for you and you don't know how many times i wrote this message and re-design everything in the website but i just wanted to be sure that everything is perfect for you in all ways and then few weeks i knew that you gonna travel to Ghana before you even told me cuz you're keeping secrets from me ha bas then i realized that the perfect idea so we can be with you in Ghana but with our souls not our bodies msh h7r2lk al website fee eh hkhleky tktshfy ba nafsk</p>
+  <p>bosy ba2a ya setty howa ana bgd msh aaref aolk eh ashan ta2rebn ana 3ala madar al sana kolaha ktbtlk paragraphs kteer awy 2ayel feha kol haga bas this message will be kinda unique will be complicated wa mlghbata awy bas rkzy anty ba2a i have no words to describe how much you mean to me it's been one of the most craziest friendships i ever had bgd 3omrk ma htfhmy azay anty 3'yrty kol haga feya anty 3omrk ma htat5yly an sohabk olayleen ashan rabna byb3tk lel nas al bgd m7tgenk fee 7yathom wenty m7tagahom wa dee haga gamella awy bgd ashan anty so pure wa so innocent with a pretty soul ana bgd msh aaref a2ool eh ana mtlghbt awy ana gowaya hgat kteer awy aayz aolha bas anty aarfaha kolaha bas ana mot2kd an hyaty kanet htb2a aw7sh ba kteer law anty mkontesh feha sana dee kanet saaba awy bas wgodk 3'yr hgat kteer awy howa ah mknshy fee haga ba sohola wa warteny ayam sodaa bas oxembellah bgd kolo yhoon ashan msh 2y 7d ystahlk fee 7yato bas yarab mshofshy ayam soda tany ashan bkt2b bsbabk wa blef bel 3rbya lee 4 blel ta2rebn ana faker kol small detail in our friendship every argument litearlly everything and i was thinking alot i felt like i don't need any friends else in my life except her and the few ones i have i would tell you everything abt my life and any secret i have bc i know deep down that you will never judge me and you will never tell anyone abt anything i told you which makes you so different al mohem ya setty ana aaref wenty bt2ry al message dee al ego btaak hyb2a fel sama ashan maska 3laya delwa2ty daleel an ana maarfshy a3esh mn gherk ma3 2nk oltely safer santeen msh aayza ashofk bas mashy i will be more humble and confess that i can't live without you bosy ana ha2olha wa hfdl a2olha tool 3omry i will always sacrfice everything for you wa2ty wa se7ty wa 2y 7aga mmkn tkhleky twsly lee al nefsk fee bas 3omry ma haolk ad eh ana t3ban ashan mtst3btesh wa tfdly tklmeny ana hases an ana 3mal aolk klam kteer awy kolo 3shwa2y bas aktr haga bgd m7tag a2olha an i appreciate your presence awy wa bgd i love you more than you can ever imagine wa i hope you won't be sad watching or reading this while you're in Ghana alone but i thought that is the only way to make you happy i already told you that this year will be so different and i promised you with that akeed ashan ana dakhlt fee hyatk tab3n mn gher ma a2ool bas that's the last thing i can give you before i travel and see my life but i swear to god taking this move was one of the hardest descisions i ever took bc i really didn't wanna leave you facing this alone but i had no choice so plz forgave me please keep shining always please keep fighting everyday every hour and every second.</p>
+  <p>KOKA thx for everything for the things you know and the things you still don't know but one day you will know everything wish you bgd the happiest birthday ever hope you achieve whatever you want in your life and also to return from Ghana with the results you want ugh i really can keep talking for hours bas ana aaref zmank delwa2ty btshtmeny 3ala kol al klam dah wa al ra3'y dah kolo fa ana hena haskot tot bas that's not all</p>
+  <p>You deserve all of it. Every good thing. Every beautiful moment. Every dream that feels too big. It's all yours.</p>
+  <p>Happy Birthday, KOKA.🎂</p>
+  <p data-type="last">TO BE CONTINUED</p>
+</div>
+<script>
+const gifts=[
+{name:'3abeer',emoji:'🩷',type:'audio',file:'3abeer.ogg'},
+{name:'7ambozo',emoji:'⭐',type:'audio',file:'7ambozo.ogg'},
+{name:'afnan',emoji:'🌟',type:'audio',file:'afnan.ogg'},
+{name:'nahed',emoji:'💫',type:'audio',file:'nahed.ogg'},
+{name:'7ameed',emoji:'🌸',type:'video',file:'7ameed.mp4'},
+{name:'mido',emoji:'💜',type:'video',file:'mido.mp4'},
+{name:'lamees',emoji:'🎀',type:'video',file:'lamees.mp4'},
+{name:'H',emoji:'✨',type:'video',file:'H.mp4'}
+];
+const photos=[{file:'memory1.jpeg',caption:''},{file:'memory2.jpeg',caption:''},{file:'sama.jpeg',caption:''},{file:'sama1.jpeg',caption:''},{file:'sama2.jpeg',caption:''},{file:'sama3.jpeg',caption:''},{file:'sama4.jpeg',caption:''},{file:'sama5.jpeg',caption:''}];
+const timeline=[
+{emoji:'✨',label:'The Beginning',text:`The day I first met KOKA — and understood why some people just change everything klam dah kan mn sana wa ta2rebn 10 ayam bzbt awl mara shoftek fee hyaty wa i never imagned that i will be friend with you but i was just really wanna know who is that girl who beats jana hesham like really cap mohamed hassan has a daughter and she is powerful and talented wow`},
+{emoji:'🌊',label:`A Moment I'll Never Forget`,text:`will idk like i have alot of moments but lemme tell you things i never said before like i can really remember when we talked like a little more when you were in india and suddenly you disappeared and i really didn't understand al bet dee aayza eh ahna kona lesa kwyseen ambar7 bas el7 b3d ta3ab wa mo3nah fhemt al dmagh al saaba dee another moment i will tell you a great moment tbh that day when you won against elsa you will never imagine how i was super proud of you yalahwy ana mmkn a23od sana ahky fee hgat kteer`},
+{emoji:'🩷',label:'When I Knew',text:`lama aarft 2n bgd it will be hard to climb your walls bas i took it in another way i really wanted to be friends with that girl so i will do everything maybe i still didn't reach the other side of your wall but i will keep trying always and it's so fun will so fuckin hard but our friendship story i can make it as a movie i swear.`},
+{emoji:'🏆',label:'challenges Weeks',text:`I watched you fight through challenges and never once let it break you. between having an injury and you kept fighting or have a fever and still playing as you have nth fighting for your last breathe So proud.`},
+{emoji:'🎂',label:'Today · Her 17th Birthday',text:`you deserves every celebration the world can possibly give you desevres the world and all the happines maybe i finally realized that you're the light at the end of the tunnel that i always waited for.`}
+];
+(function(){const c=document.getElementById('conf-canvas'),ctx=c.getContext('2d');function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}resize();window.addEventListener('resize',resize);const COLS=['#F7A8C4','#F26FA6','#C9A7F0','#E0C3FC','#A8E6CF','#FFCBA5','#FFD8A8','#FFFBFD','#FF9EC4','#B57EDC'];const P=[];for(let i=0;i<400;i++)P.push({x:Math.random()*innerWidth,y:Math.random()*-innerHeight*1.5,w:Math.random()*11+4,h:Math.random()*6+2,rot:Math.random()*Math.PI*2,vrot:(Math.random()-.5)*.1,vy:Math.random()*2+0.6,vx:(Math.random()-.5)*.7,col:COLS[Math.floor(Math.random()*COLS.length)],a:0.9,shape:['rect','rect','circle','star'][Math.floor(Math.random()*4)],wb:Math.random()*Math.PI*2,ws:Math.random()*.03+.01});function star(c,x,y,r){c.beginPath();for(let i=0;i<5;i++){const a=((i*4-1)/10)*Math.PI;c.lineTo(x+r*Math.cos(a),y+r*Math.sin(a));c.lineTo(x+r*.4*Math.cos(((i*4+1)/10)*Math.PI),y+r*.4*Math.sin(((i*4+1)/10)*Math.PI));}c.closePath();c.fill();}(function draw(){ctx.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.wb+=p.ws;p.y+=p.vy;p.x+=p.vx+Math.sin(p.wb)*.5;p.rot+=p.vrot;if(p.y>c.height+20){p.y=-20;p.x=Math.random()*c.width;}ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.globalAlpha=p.a;ctx.fillStyle=p.col;if(p.shape==='circle'){ctx.beginPath();ctx.arc(0,0,p.w/2,0,Math.PI*2);ctx.fill();}else if(p.shape==='star'){star(ctx,0,0,p.w/2);}else{ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);}ctx.restore();});requestAnimationFrame(draw);})();})();
+(function(){const c=document.getElementById('fw-canvas'),ctx=c.getContext('2d');function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}resize();window.addEventListener('resize',resize);const COLS=['#F26FA6','#F7A8C4','#C9A7F0','#E0C3FC','#FFD8A8','#A8E6CF','#FF9EC4'];const P=[];function explode(x,y){const col=COLS[Math.floor(Math.random()*COLS.length)];for(let i=0;i<55;i++){const ang=(Math.PI*2/55)*i+(Math.random()-.5)*.3,spd=Math.random()*5+2;P.push({x,y,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,alpha:1,r:Math.random()*2.5+.8,color:col,decay:Math.random()*.018+.008,gravity:.04});}}window._explode=explode;window._startFW=()=>{for(let i=0;i<8;i++)setTimeout(()=>explode(c.width*(0.1+Math.random()*.8),c.height*(0.05+Math.random()*.5)),i*200);function sched(){setTimeout(()=>{explode(c.width*(0.1+Math.random()*.8),c.height*(0.05+Math.random()*.5));if(Math.random()>0.4)setTimeout(()=>explode(c.width*(0.1+Math.random()*.8),c.height*(0.05+Math.random()*.5)),300);sched();},800+Math.random()*1000);}sched();};(function draw(){ctx.clearRect(0,0,c.width,c.height);for(let i=P.length-1;i>=0;i--){const p=P[i];p.x+=p.vx;p.y+=p.vy;p.vy+=p.gravity;p.vx*=.98;p.alpha-=p.decay;if(p.alpha<=0){P.splice(i,1);continue;}ctx.save();ctx.globalAlpha=p.alpha;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.restore();}requestAnimationFrame(draw);})();})();
+async function start(){
+  await new Promise(r=>document.getElementById('board-screen').addEventListener('click',r,{once:true}));
+  const song1=new Audio('./song1.mp3'),song2=new Audio('./song2.mp3'),bgMusic=new Audio('./song.mp3');
+  song1.volume=1;song2.volume=1;bgMusic.volume=0.5;bgMusic.loop=true;window._bgMusic=bgMusic;window._introAudio=[song1,song2];
+  /* FIX 2 — confetti + fireworks visible RIGHT after tap */
+  document.getElementById('conf-canvas').classList.add('show');
+  document.getElementById('fw-canvas').classList.add('show');
+  document.getElementById('board-screen').classList.add('out');
+  document.getElementById('skip-btn').classList.add('show');
+  await sleep(600);
+  document.getElementById('board-screen').style.display='none';
+  document.getElementById('ready-screen').classList.add('show');
+  song1.play().catch(()=>{});
+  await sleep(200);
+  document.getElementById('rdy-line').classList.add('grow');
+  document.getElementById('rdy-line2').classList.add('grow');
+  await sleep(4000);
+  document.getElementById('ladies-text').classList.add('lit');
+  await sleep(2500);
+  document.getElementById('ready-text').classList.add('lit');
+  await sleep(4000);
+  song1.pause();
+  song2.play().catch(()=>{});
+  /* FIX 3 — numbers at random corners, never in front of text */
+  const nums=['cn10','cn9','cn8','cn7','cn6','cn5','cn4','cn3','cn2','cn1'];
+  const positions=[
+    {top:'6%',left:'4%'},{top:'6%',left:'68%'},
+    {top:'74%',left:'4%'},{top:'74%',left:'68%'},
+    {top:'6%',left:'36%'},{top:'74%',left:'36%'},
+    {top:'38%',left:'2%'},{top:'38%',left:'72%'},
+    {top:'18%',left:'62%'},{top:'58%',left:'10%'},
+  ];
+  for(let i=0;i<nums.length;i++){
+    if(i>0)document.getElementById(nums[i-1]).classList.add('hide');
+    const el=document.getElementById(nums[i]),pos=positions[i];
+    el.style.top=pos.top;el.style.left=pos.left;el.style.right='auto';el.style.bottom='auto';
+    el.classList.add('show');
+    await sleep(1100);
+  }
+  document.getElementById('cn1').classList.add('hide');
+  const rt=document.getElementById('ready-text');
+  rt.textContent='HAPPY BIRTHDAY KOKA!';
+  rt.style.color='var(--gold2)';
+  rt.style.textShadow='0 0 40px rgba(255,209,102,0.9),0 0 80px rgba(255,209,102,0.5)';
+  rt.style.fontSize='clamp(22px,6.5vw,48px)';
+  document.getElementById('ladies-text').textContent='✦ August 12 ✦';
+  for(let i=0;i<12;i++)setTimeout(()=>window._explode&&window._explode(Math.random()*window.innerWidth,Math.random()*window.innerHeight*0.6),i*150);
+  await sleep(2000);
+  document.getElementById('ready-screen').classList.add('out');
+  song2.pause();
+  await sleep(800);
+  document.getElementById('ready-screen').style.display='none';
+  document.getElementById('plane-screen').classList.add('show');
+  await sleep(5000);
+  document.getElementById('plane-screen').classList.add('out');
+  await sleep(1200);
+  document.getElementById('plane-screen').style.display='none';
+  document.getElementById('analyzer-screen').classList.add('show');
+  const bars=[{id:'az1',bar:'ab1'},{id:'az2',bar:'ab2'},{id:'az3',bar:'ab3'},{id:'az4',bar:'ab4'},{id:'az5',bar:'ab5'}];
+  for(const {id,bar} of bars){document.getElementById(id).classList.add('show');setTimeout(()=>document.getElementById(bar).style.width='100%',100);await sleep(800);}
+  await sleep(600);
+  document.getElementById('az-results').classList.add('show');
+  await sleep(2500);
+  enterApp();
+}
+/* One idempotent entry into the main app — used by the natural end of the intro AND the skip button */
+function enterApp(){
+  if(window._appEntered)return;window._appEntered=true;
+  (window._introAudio||[]).forEach(a=>{try{a.pause();a.currentTime=0;}catch(e){}});
+  ['board-screen','ready-screen','plane-screen','analyzer-screen'].forEach(id=>{const e=document.getElementById(id);if(e){e.classList.remove('show','out');e.style.display='none';}});
+  const sk=document.getElementById('skip-btn');if(sk)sk.classList.remove('show');
+  document.getElementById('app').classList.add('visible');
+  document.getElementById('music-bar').classList.add('show');
+  buildCountdown();window._startFW&&window._startFW();playCheer();
+  const bg=window._bgMusic;
+  if(bg){bg.play().then(()=>{document.getElementById('play-btn').textContent='⏸';window._playing=true;initViz();}).catch(()=>{document.addEventListener('click',()=>{bg.play().then(()=>{document.getElementById('play-btn').textContent='⏸';window._playing=true;initViz();}).catch(()=>{});},{once:true});});}
+}
+function skipIntro(){window._skipped=true;enterApp();}
+/* skip-aware: once skipped, pending/future sleeps never resolve, so the intro chain freezes instead of re-showing screens */
+function sleep(ms){return new Promise(r=>{if(window._skipped)return;setTimeout(()=>{if(!window._skipped)r();},ms);});}
+function playCheer(){try{const ac=new(window.AudioContext||window.webkitAudioContext)();ac.resume();function b(f,s,d,v=0.18){const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.frequency.value=f;o.type='sine';g.gain.setValueAtTime(0,ac.currentTime+s);g.gain.linearRampToValueAtTime(v,ac.currentTime+s+0.02);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+s+d);o.start(ac.currentTime+s);o.stop(ac.currentTime+s+d+0.05);}[523,659,784,1047,1319].forEach((f,i)=>b(f,i*.1,.22,.22));[523,659,784].forEach(f=>b(f,.7,.7,.12));}catch(e){}}
+window._playing=false;
+function toggleMusic(){const m=window._bgMusic;if(!m)return;if(window._playing){m.pause();document.getElementById('play-btn').textContent='▶';}else{m.play().catch(()=>{});document.getElementById('play-btn').textContent='⏸';}window._playing=!window._playing;}
+/* FIX 4 — animated wave visualizer, never crashes */
+function initViz(){const cv=document.getElementById('viz-canvas'),ctx=cv.getContext('2d');let frame=0;(function draw(){cv.width=cv.offsetWidth;cv.height=30;ctx.clearRect(0,0,cv.width,cv.height);frame++;const bars=Math.floor(cv.width/4);for(let i=0;i<bars;i++){const h=(Math.sin(frame*0.05+i*0.4)+1)*0.5*cv.height*0.8+2;const g=ctx.createLinearGradient(0,cv.height,0,cv.height-h);g.addColorStop(0,'rgba(209,77,139,0.8)');g.addColorStop(1,'rgba(245,166,35,0.9)');ctx.fillStyle=g;ctx.fillRect(i*4,cv.height-h,3,h);}requestAnimationFrame(draw);})();}
+function buildCountdown(){const bday=new Date(new Date().getFullYear(),7,12);if(new Date()>bday)bday.setFullYear(bday.getFullYear()+1);if(new Date().getMonth()===7&&new Date().getDate()===12){document.getElementById('cd-row').innerHTML=`<div style="font-family:'Playfair Display',serif;font-size:clamp(14px,4vw,20px);font-style:italic;color:var(--gold2);padding:8px">🎂 Today is the Day!! Happy Birthday KOKA!! 🎂</div>`;return;}function tick(){const d=bday-new Date();document.getElementById('cd-d').textContent=String(Math.floor(d/86400000)).padStart(2,'0');document.getElementById('cd-h').textContent=String(Math.floor((d%86400000)/3600000)).padStart(2,'0');document.getElementById('cd-m').textContent=String(Math.floor((d%3600000)/60000)).padStart(2,'0');document.getElementById('cd-s').textContent=String(Math.floor((d%60000)/1000)).padStart(2,'0');}tick();setInterval(tick,1000);}
+function setCelebration(on){/* confetti + fireworks belong on the dark landing, not over the light reading pages */
+  document.getElementById('conf-canvas').classList.toggle('show',on);
+  document.getElementById('fw-canvas').classList.toggle('show',on);}
+const SECTION_PAGES=['letter-page','gift-page','photos-page','secret-page'];
+/* Unlock order: Letter → Your Memories → Gift → Secret. Opening one unlocks the next. */
+const UNLOCK_NEXT={'letter-page':'photos-page','photos-page':'gift-page','gift-page':'secret-page'};
+window._visited={};let finaleShown=false,lockToastT;
+function cardFor(id){return document.querySelector('.dest-card[onclick*="'+id+'"]');}
+function lockToast(msg){const t=document.getElementById('lock-toast');t.textContent=msg;t.classList.add('show');clearTimeout(lockToastT);lockToastT=setTimeout(()=>t.classList.remove('show'),2400);}
+function nudgeLocked(card){card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake');lockToast('🔒 Follow the path — this one unlocks soon 💫');}
+function unlockCard(id){const card=cardFor(id);if(card&&card.classList.contains('locked')){card.classList.remove('locked');card.classList.add('just-unlocked');const name=(card.querySelector('.dc-name')||{}).textContent||'A new stop';lockToast('✨ '+name+' unlocked!');}}
+function openPage(id){
+  const card=cardFor(id);
+  if(card&&card.classList.contains('locked')){nudgeLocked(card);return;}
+  document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';setCelebration(false);
+  if(SECTION_PAGES.includes(id)){window._visited[id]=true;if(card)card.classList.add('visited');const nxt=UNLOCK_NEXT[id];if(nxt)unlockCard(nxt);}
+  if(id==='photos-page'){if(!photosBuilt)setTimeout(buildPhotos,300);if(!memoriesPopupShown)setTimeout(showMemoriesPopup,450);}}
+let memoriesPopupShown=false;
+function showMemoriesPopup(){if(memoriesPopupShown)return;memoriesPopupShown=true;document.getElementById('memories-popup').classList.add('show');}
+function closeMemoriesPopup(){document.getElementById('memories-popup').classList.remove('show');}
+function closePage(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';setCelebration(true);
+  if(!finaleShown&&SECTION_PAGES.every(p=>window._visited[p]))setTimeout(openFinale,500);}
+function openFinale(){if(finaleShown)return;finaleShown=true;document.body.style.overflow='hidden';document.getElementById('finale-screen').classList.add('show');setCelebration(true);
+  for(let i=0;i<16;i++)setTimeout(()=>window._explode&&window._explode(Math.random()*innerWidth,Math.random()*innerHeight*0.6),i*140);
+  try{playCheer();}catch(e){}}
+function closeFinale(){document.getElementById('finale-screen').classList.remove('show');document.body.style.overflow='';}
+let envelopeOpened=false,letterBuilt=false;
+function openEnvelope(){if(envelopeOpened)return;envelopeOpened=true;document.getElementById('env-flap').classList.add('open');document.getElementById('env-hint').textContent='Reading... 🌊';setTimeout(()=>{document.getElementById('letter-reveal').classList.add('open');buildLetter();setTimeout(buildTimeline,1200);},900);}
+function buildLetter(){if(letterBuilt)return;letterBuilt=true;const S=Array.from(document.querySelectorAll('#letter-src > *')),con=document.getElementById('letter-body');S.forEach((el,i)=>{const t=el.dataset.type||'p';let c;if(t==='name'){c=document.createElement('span');c.className='letter-name';}else if(t==='last'){c=document.createElement('span');c.className='letter-last';}else{c=document.createElement('p');}c.textContent=el.textContent.trim();c.style.opacity='0';c.style.transform='translateY(12px)';c.style.transition='opacity 0.7s ease,transform 0.7s ease';con.appendChild(c);setTimeout(()=>{c.style.opacity='1';c.style.transform='translateY(0)';},250+i*380);});}
+let tlBuilt=false;
+function buildTimeline(){if(tlBuilt)return;tlBuilt=true;const w=document.getElementById('timeline');timeline.forEach((t,i)=>{const item=document.createElement('div');item.className='tl-item';item.style.opacity='0';item.style.transform='translateX(-16px)';item.innerHTML=`<div class="tl-dot">${t.emoji}</div><div class="tl-body"><div class="tl-label">${t.label}</div><div class="tl-text">${t.text}</div></div>`;w.appendChild(item);setTimeout(()=>{item.style.transition='all 0.5s ease';item.style.opacity='1';item.style.transform='translateX(0)';},200+i*180);});}
+let giftOpened=false;
+function openGift(){if(giftOpened)return;giftOpened=true;document.getElementById('gift-lid').classList.add('open');document.getElementById('gift-hint').textContent='🎁 Surprise!';setTimeout(()=>{document.getElementById('videos-reveal').classList.add('open');buildVideos();},800);}
+function buildVideos(){const l=document.getElementById('videos-list');if(l.children.length>0)return;gifts.forEach(g=>{const c=document.createElement('div');c.className='video-card'+(g.type==='audio'?' audio-card':'');const sub=g.type==='audio'?'🎙️ Voice note':'🎬 Video message';let media;if(g.type==='audio'){const mp3=g.file.replace(/\.[a-z0-9]+$/i,'.mp3');media=`<audio controls preload="metadata"><source src="./${encodeURI(mp3)}" type="audio/mpeg"/><source src="./${encodeURI(g.file)}" type="audio/ogg"/></audio>`;}else{media=`<video controls playsinline preload="metadata"><source src="./${encodeURI(g.file)}" type="video/mp4"/></video>`;}c.innerHTML=`<div class="video-header"><div class="video-avatar">${g.emoji}</div><div class="vh-meta"><div class="video-name">${g.name}</div><div class="video-sub">${sub}</div></div></div>${media}`;l.appendChild(c);});}
+let photosBuilt=false;
+function buildPhotos(){if(photosBuilt)return;photosBuilt=true;const g=document.getElementById('photos-grid');photos.forEach((p)=>{const item=document.createElement('div');item.className='photo-item';item.innerHTML=`<img src="./${encodeURI(p.file)}" alt="Memory" loading="lazy"/>`+(p.caption?`<div class="photo-cap">${p.caption}</div>`:'');g.appendChild(item);});}
+start();
+</script>
+</body>
+</html>
