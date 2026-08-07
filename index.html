@@ -268,6 +268,22 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--navy2);min-height:10
 .fin-bday{font-family:'Bebas Neue',sans-serif;font-size:clamp(16px,5vw,28px);letter-spacing:3px;color:var(--gold2);text-shadow:0 0 24px rgba(255,216,168,0.5);margin-bottom:30px;animation:fadeUp 0.9s 1.25s ease both;}
 .fin-close{background:transparent;border:1px solid rgba(224,195,252,0.4);color:var(--ocean3);font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:12px 22px;border-radius:50px;cursor:pointer;min-height:44px;-webkit-tap-highlight-color:transparent;animation:fadeUp 0.9s 1.55s ease both;}
 .fin-close:active{background:rgba(224,195,252,0.15);}
+/* Make-a-wish cake in the finale */
+.cake-wrap{margin:18px auto 8px;width:min(260px,76vw);cursor:pointer;animation:fadeUp 0.9s 1.7s ease both;}
+.cake-hint{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(14px,4vw,17px);color:var(--ocean3);margin-bottom:16px;line-height:1.6;animation:bPulse 1.9s ease-in-out infinite;}
+.cake-hint-sub{display:block;font-family:'DM Sans',sans-serif;font-style:normal;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(224,195,252,0.5);margin-top:6px;}
+.cake-candles{display:flex;justify-content:center;align-items:flex-end;gap:6px;flex-wrap:wrap;padding:0 14px;margin-bottom:2px;position:relative;z-index:2;}
+.candle{width:5px;height:22px;border-radius:2px;background:var(--cc,#F26FA6);background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.55) 0 3px,transparent 3px 6px);position:relative;}
+.flame{position:absolute;top:-11px;left:50%;width:9px;height:13px;transform:translateX(-50%);border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;background:radial-gradient(circle at 50% 72%,#fff 0%,#FFE9A8 32%,#FFB347 66%,#F5853A 100%);box-shadow:0 0 10px rgba(255,196,90,.9),0 0 18px rgba(255,150,60,.55);transform-origin:50% 100%;animation:flicker .5s ease-in-out infinite alternate;}
+@keyframes flicker{0%{transform:translateX(-50%) scale(1) rotate(-2deg);opacity:.95}100%{transform:translateX(-52%) scale(1.12,1.2) rotate(2deg);opacity:1}}
+.candle.out .flame{animation:none;opacity:0;transform:translateX(-50%) scaleY(0);transition:all .3s ease;}
+.smoke{position:absolute;top:-12px;left:50%;width:5px;height:5px;border-radius:50%;background:rgba(220,220,230,.6);opacity:0;transform:translateX(-50%);}
+.candle.out .smoke{animation:smokeRise 1s ease-out forwards;}
+@keyframes smokeRise{0%{opacity:.7;transform:translateX(-50%) translateY(0) scale(1)}100%{opacity:0;transform:translateX(-50%) translateY(-26px) scale(2.6)}}
+.cake-top{height:28px;background:linear-gradient(180deg,#FFC7DE,#F7A8C4);border-radius:16px 16px 8px 8px;}
+.cake-mid{height:46px;background:linear-gradient(180deg,#E9D8FF,#C9A7F0);}
+.cake-base{height:24px;background:linear-gradient(180deg,#FFE1B0,#FFCBA5);border-radius:0 0 10px 10px;}
+.cake-plate{height:12px;width:118%;margin-left:-9%;margin-top:-4px;background:linear-gradient(180deg,#FFFBFD,#E9D8FF);border-radius:50%;box-shadow:0 12px 26px rgba(0,0,0,.35);}
 /* Memories intro pop-up */
 #memories-popup{position:fixed;inset:0;z-index:700;background:rgba(26,16,48,0.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:28px;}
 #memories-popup.show{display:flex;animation:finaleIn 0.4s ease both;}
@@ -462,7 +478,12 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--navy2);min-height:10
   <div class="fin-name">KOKA</div>
   <div class="fin-msg">You explored every stop in your dreamland — and every single one was built just for you. 💫</div>
   <div class="fin-bday">🎂 Happy 17th Birthday 🎂</div>
-  <button class="fin-close" onclick="closeFinale()">↩ Back to Dreamland</button>
+  <div class="cake-wrap" id="cake-wrap" onclick="blowOutCandles()">
+    <div class="cake-hint" id="cake-hint">Make a wish 🌟 then blow out your candles into your phone<span class="cake-hint-sub">(or tap the cake)</span></div>
+    <div class="cake-candles" id="cake-candles"></div>
+    <div class="cake"><div class="cake-top"></div><div class="cake-mid"></div><div class="cake-base"></div></div>
+    <div class="cake-plate"></div>
+  </div>
 </div>
 <div id="letter-src" style="display:none">
   <p data-type="name">My dearest KOKA,</p>
@@ -605,9 +626,15 @@ function closeMemoriesPopup(){document.getElementById('memories-popup').classLis
 function closePage(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';setCelebration(true);
   if(!finaleShown&&SECTION_PAGES.every(p=>window._visited[p]))setTimeout(openFinale,500);}
 function openFinale(){if(finaleShown)return;finaleShown=true;document.body.style.overflow='hidden';document.getElementById('finale-screen').classList.add('show');setCelebration(true);
-  for(let i=0;i<16;i++)setTimeout(()=>window._explode&&window._explode(Math.random()*innerWidth,Math.random()*innerHeight*0.6),i*140);
-  try{playCheer();}catch(e){}}
+  for(let i=0;i<6;i++)setTimeout(()=>window._explode&&window._explode(Math.random()*innerWidth,Math.random()*innerHeight*0.6),i*170);
+  try{playCheer();}catch(e){}
+  buildCandles();
+  setTimeout(startBlowDetection,1900);}
 function closeFinale(){document.getElementById('finale-screen').classList.remove('show');document.body.style.overflow='';}
+let candlesBlown=false,_micStream=null;
+function buildCandles(){const row=document.getElementById('cake-candles');if(!row||row.children.length)return;const cols=['#F26FA6','#C9A7F0','#FFD8A8','#A8E6CF','#FF9EC4'];for(let i=0;i<17;i++){const c=document.createElement('div');c.className='candle';c.style.setProperty('--cc',cols[i%cols.length]);c.innerHTML='<span class="smoke"></span><span class="flame"></span>';row.appendChild(c);}}
+function blowOutCandles(){if(candlesBlown)return;candlesBlown=true;const cs=[...document.querySelectorAll('#cake-candles .candle')];cs.forEach((c,i)=>setTimeout(()=>c.classList.add('out'),i*70));if(_micStream){try{_micStream.getTracks().forEach(t=>t.stop());}catch(e){}_micStream=null;}const hint=document.getElementById('cake-hint');const done=cs.length*70+300;setTimeout(()=>{if(hint)hint.innerHTML='✨ Your wish is on its way ✨';for(let i=0;i<16;i++)setTimeout(()=>window._explode&&window._explode(Math.random()*innerWidth,Math.random()*innerHeight*0.6),i*120);try{playCheer();}catch(e){}},done);setTimeout(closeFinale,done+2600);}
+function startBlowDetection(){if(candlesBlown||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{_micStream=stream;const AC=window.AudioContext||window.webkitAudioContext;const ac=new AC();if(ac.resume)ac.resume();const src=ac.createMediaStreamSource(stream);const an=ac.createAnalyser();an.fftSize=512;src.connect(an);const data=new Uint8Array(an.fftSize);let loud=0;(function loop(){if(candlesBlown)return;an.getByteTimeDomainData(data);let sum=0;for(let i=0;i<data.length;i++){const v=(data[i]-128)/128;sum+=v*v;}const rms=Math.sqrt(sum/data.length);if(rms>0.3){if(++loud>=4){blowOutCandles();return;}}else{loud=loud>0?loud-1:0;}requestAnimationFrame(loop);})();}).catch(()=>{});}
 let envelopeOpened=false,letterBuilt=false;
 function openEnvelope(){if(envelopeOpened)return;envelopeOpened=true;document.getElementById('env-flap').classList.add('open');document.getElementById('env-hint').textContent='Reading... 🌊';setTimeout(()=>{document.getElementById('letter-reveal').classList.add('open');buildLetter();setTimeout(buildTimeline,1200);},900);}
 function buildLetter(){if(letterBuilt)return;letterBuilt=true;const S=Array.from(document.querySelectorAll('#letter-src > *')),con=document.getElementById('letter-body');S.forEach((el,i)=>{const t=el.dataset.type||'p';let c;if(t==='name'){c=document.createElement('span');c.className='letter-name';}else if(t==='last'){c=document.createElement('span');c.className='letter-last';}else{c=document.createElement('p');}c.textContent=el.textContent.trim();c.style.opacity='0';c.style.transform='translateY(12px)';c.style.transition='opacity 0.7s ease,transform 0.7s ease';con.appendChild(c);setTimeout(()=>{c.style.opacity='1';c.style.transform='translateY(0)';},250+i*380);});}
