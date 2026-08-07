@@ -270,7 +270,7 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--navy2);min-height:10
 .fin-close:active{background:rgba(224,195,252,0.15);}
 /* Make-a-wish cake in the finale */
 .cake-wrap{margin:18px auto 8px;width:min(260px,76vw);cursor:pointer;animation:fadeUp 0.9s 1.7s ease both;}
-.cake-hint{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(14px,4vw,17px);color:var(--ocean3);margin-bottom:16px;line-height:1.6;animation:bPulse 1.9s ease-in-out infinite;}
+.cake-hint{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(14px,4vw,17px);color:var(--ocean3);margin:0 auto 18px;max-width:400px;line-height:1.7;animation:fadeUp 0.9s 1.6s ease both;}
 .cake-hint-sub{display:block;font-family:'DM Sans',sans-serif;font-style:normal;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(224,195,252,0.5);margin-top:6px;}
 .cake-candles{display:flex;justify-content:center;align-items:flex-end;gap:6px;flex-wrap:wrap;padding:0 14px;margin-bottom:2px;position:relative;z-index:2;}
 .candle{width:5px;height:22px;border-radius:2px;background:var(--cc,#F26FA6);background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.55) 0 3px,transparent 3px 6px);position:relative;}
@@ -285,8 +285,8 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--navy2);min-height:10
 .cake-base{height:24px;background:linear-gradient(180deg,#FFE1B0,#FFCBA5);border-radius:0 0 10px 10px;}
 .cake-plate{height:12px;width:118%;margin-left:-9%;margin-top:-4px;background:linear-gradient(180deg,#FFFBFD,#E9D8FF);border-radius:50%;box-shadow:0 12px 26px rgba(0,0,0,.35);}
 /* Memories intro pop-up */
-#memories-popup{position:fixed;inset:0;z-index:700;background:rgba(26,16,48,0.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:28px;}
-#memories-popup.show{display:flex;animation:finaleIn 0.4s ease both;}
+#memories-popup,#gift-popup{position:fixed;inset:0;z-index:700;background:rgba(26,16,48,0.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:28px;}
+#memories-popup.show,#gift-popup.show{display:flex;animation:finaleIn 0.4s ease both;}
 .mem-pop-card{background:var(--white);border-radius:18px;max-width:400px;width:100%;padding:30px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.45);border-top:4px solid var(--ocean2);animation:cardReveal 0.5s cubic-bezier(0.34,1.56,0.64,1) both;}
 .mem-pop-icon{font-size:40px;margin-bottom:14px;}
 .mem-pop-text{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(14px,4vw,17px);line-height:1.85;color:var(--navy);margin-bottom:24px;}
@@ -469,8 +469,15 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--navy2);min-height:10
 <div id="memories-popup">
   <div class="mem-pop-card">
     <div class="mem-pop-icon">💜</div>
-    <div class="mem-pop-text">i'm genuinely so sad that we don't have a lot of memories so i found that you have other memories with the ppl you love so i had to use it since we just have a few and tbh i found a lot of ppl who really loves you</div>
+    <div class="mem-pop-text">I'm genuinely so sad that we don't have a lot of memories, so I found that you have other memories with the ppl you love. So I had to use it since we just have a few, and tbh I found a lot of ppl who really loves you. I'm sure each of those pic brings you a very happy memory.</div>
     <button class="mem-pop-btn" onclick="closeMemoriesPopup()">okay 💜</button>
+  </div>
+</div>
+<div id="gift-popup">
+  <div class="mem-pop-card">
+    <div class="mem-pop-icon">💐</div>
+    <div class="mem-pop-text">Special thanks for each person made that website much beautiful and better, and thx for anyone who helped me makes your day a wonderful day and a very special day. All of us loves you kokaa.</div>
+    <button class="mem-pop-btn" onclick="closeGiftPopup()">okay 💜</button>
   </div>
 </div>
 <div id="finale-screen">
@@ -478,8 +485,8 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--navy2);min-height:10
   <div class="fin-name">KOKA</div>
   <div class="fin-msg">You explored every stop in your dreamland — and every single one was built just for you. 💫</div>
   <div class="fin-bday">🎂 Happy 17th Birthday 🎂</div>
+  <div class="cake-hint" id="cake-hint">ik you maybe won't have birthday cake today, so I have to be sure that you have one today even if it's virtual. Make a wish 🌟 then blow out your candles into your phone<span class="cake-hint-sub">(or tap the cake)</span></div>
   <div class="cake-wrap" id="cake-wrap" onclick="blowOutCandles()">
-    <div class="cake-hint" id="cake-hint">Make a wish 🌟 then blow out your candles into your phone<span class="cake-hint-sub">(or tap the cake)</span></div>
     <div class="cake-candles" id="cake-candles"></div>
     <div class="cake"><div class="cake-top"></div><div class="cake-mid"></div><div class="cake-base"></div></div>
     <div class="cake-plate"></div>
@@ -641,7 +648,10 @@ function buildLetter(){if(letterBuilt)return;letterBuilt=true;const S=Array.from
 let tlBuilt=false;
 function buildTimeline(){if(tlBuilt)return;tlBuilt=true;const w=document.getElementById('timeline');timeline.forEach((t,i)=>{const item=document.createElement('div');item.className='tl-item';item.style.opacity='0';item.style.transform='translateX(-16px)';item.innerHTML=`<div class="tl-dot">${t.emoji}</div><div class="tl-body"><div class="tl-label">${t.label}</div><div class="tl-text">${t.text}</div></div>`;w.appendChild(item);setTimeout(()=>{item.style.transition='all 0.5s ease';item.style.opacity='1';item.style.transform='translateX(0)';},200+i*180);});}
 let giftOpened=false;
-function openGift(){if(giftOpened)return;giftOpened=true;document.getElementById('gift-lid').classList.add('open');document.getElementById('gift-hint').textContent='🎁 Surprise!';setTimeout(()=>{document.getElementById('videos-reveal').classList.add('open');buildVideos();},800);}
+function openGift(){if(giftOpened)return;giftOpened=true;document.getElementById('gift-lid').classList.add('open');document.getElementById('gift-hint').textContent='🎁 Surprise!';setTimeout(()=>{document.getElementById('videos-reveal').classList.add('open');buildVideos();},800);if(!giftPopupShown)setTimeout(showGiftPopup,1000);}
+let giftPopupShown=false;
+function showGiftPopup(){if(giftPopupShown)return;giftPopupShown=true;document.getElementById('gift-popup').classList.add('show');}
+function closeGiftPopup(){document.getElementById('gift-popup').classList.remove('show');}
 function buildVideos(){const l=document.getElementById('videos-list');if(l.children.length>0)return;gifts.forEach(g=>{const c=document.createElement('div');c.className='video-card'+(g.type==='audio'?' audio-card':'');const sub=g.type==='audio'?'🎙️ Voice note':'🎬 Video message';let media;if(g.type==='audio'){const mp3=g.file.replace(/\.[a-z0-9]+$/i,'.mp3');media=`<audio controls preload="metadata"><source src="./${encodeURI(mp3)}" type="audio/mpeg"/><source src="./${encodeURI(g.file)}" type="audio/ogg"/></audio>`;}else{media=`<video controls playsinline preload="metadata"><source src="./${encodeURI(g.file)}" type="video/mp4"/></video>`;}c.innerHTML=`<div class="video-header"><div class="video-avatar">${g.emoji}</div><div class="vh-meta"><div class="video-name">${g.name}</div><div class="video-sub">${sub}</div></div></div>${media}`;l.appendChild(c);});}
 let photosBuilt=false;
 function buildPhotos(){if(photosBuilt)return;photosBuilt=true;const g=document.getElementById('photos-grid');photos.forEach((p)=>{const item=document.createElement('div');item.className='photo-item';item.innerHTML=`<img src="./${encodeURI(p.file)}" alt="Memory" loading="lazy"/>`+(p.caption?`<div class="photo-cap">${p.caption}</div>`:'');g.appendChild(item);});}
