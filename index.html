@@ -224,6 +224,16 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--navy2);min-height:10
 .photos-location{font-size:8px;letter-spacing:4px;text-transform:uppercase;color:var(--sage);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
 .photos-title{font-family:'Playfair Display',serif;font-size:clamp(17px,5vw,28px);font-style:italic;font-weight:700;color:var(--navy);margin-bottom:16px;}
 .photos-grid{columns:2;gap:10px;}
+.photos-sub{font-size:11px;letter-spacing:1px;color:var(--navy2);opacity:0.65;text-align:center;margin-bottom:18px;font-style:italic;font-family:'Playfair Display',serif;}
+.heart-mosaic{width:min(340px,88vw);aspect-ratio:1/1;margin:2px auto 8px;display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:1fr;gap:2px;clip-path:url(#heartClip);-webkit-clip-path:url(#heartClip);filter:drop-shadow(0 10px 24px rgba(209,77,139,0.25));}
+.heart-mosaic img{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer;}
+#photo-lightbox{position:fixed;inset:0;z-index:800;background:rgba(10,6,20,0.94);display:none;align-items:center;justify-content:center;flex-direction:column;padding:20px;}
+#photo-lightbox.show{display:flex;animation:finaleIn 0.3s ease both;}
+#lb-img{max-width:92vw;max-height:78vh;border-radius:8px;box-shadow:0 12px 44px rgba(0,0,0,.6);}
+.lb-close{position:fixed;top:14px;right:16px;background:rgba(255,255,255,.14);border:none;color:#fff;font-size:18px;width:40px;height:40px;border-radius:50%;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.lb-nav{position:fixed;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.14);border:none;color:#fff;font-size:26px;line-height:1;width:44px;height:44px;border-radius:50%;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.lb-prev{left:12px;}.lb-next{right:12px;}
+.lb-count{margin-top:16px;color:rgba(255,255,255,.7);font-size:12px;letter-spacing:3px;}
 .photo-item{break-inside:avoid;margin-bottom:10px;background:var(--white);border:1px solid var(--cream2);padding:6px 6px 22px;box-shadow:0 4px 16px rgba(0,0,0,0.06);}
 .photo-item img{width:100%;display:block;}
 .photo-cap{font-family:'Playfair Display',serif;font-size:10px;font-style:italic;color:var(--navy2);text-align:center;margin-top:6px;}
@@ -315,6 +325,14 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--navy2);min-height:10
 <canvas id="conf-canvas"></canvas>
 <canvas id="fw-canvas"></canvas>
 <button id="skip-btn" onclick="skipIntro()">Skip intro →</button>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs><clipPath id="heartClip" clipPathUnits="objectBoundingBox"><path d="M0.5,1 C0.5,1 0,0.72 0,0.3 C0,0.1 0.16,0 0.3,0 C0.42,0 0.5,0.1 0.5,0.2 C0.5,0.1 0.58,0 0.7,0 C0.84,0 1,0.1 1,0.3 C1,0.72 0.5,1 0.5,1 Z"/></clipPath></defs></svg>
+<div id="photo-lightbox">
+  <button class="lb-close" onclick="closeLightbox()" aria-label="Close">✕</button>
+  <button class="lb-nav lb-prev" onclick="lbNav(-1)" aria-label="Previous">‹</button>
+  <img id="lb-img" alt="Memory"/>
+  <button class="lb-nav lb-next" onclick="lbNav(1)" aria-label="Next">›</button>
+  <div class="lb-count" id="lb-count"></div>
+</div>
 <div id="board-screen">
   <div class="board-airline">✦ KOKA AIRWAYS ✦</div>
   <div class="board-plane">✈️</div>
@@ -439,7 +457,7 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--navy2);min-height:10
 </div>
 <div class="section-page" id="photos-page">
   <div class="page-nav"><button class="back-btn" onclick="closePage('photos-page')">← Back</button><div class="page-nav-title">🏰 Your Memories</div></div>
-  <div class="photos-section"><div class="photos-location">📍 The Memory Castle · Dreamland</div><div class="photos-title">Photos from the memory castle</div><div class="photos-grid" id="photos-grid"></div></div>
+  <div class="photos-section"><div class="photos-location">📍 The Memory Castle · Dreamland</div><div class="photos-title">🎂 Happy Birthday, KOKA 🎂</div><div class="photos-sub">every photo is a memory — tap any to open it 💜</div><div class="heart-mosaic" id="photos-grid"></div></div>
 </div>
 <div class="section-page" id="secret-page">
   <div class="page-nav"><button class="back-btn" onclick="closePage('secret-page')">← Back</button><div class="page-nav-title">🌙 Secret Message</div></div>
@@ -660,7 +678,13 @@ function showGiftPopup(){if(giftPopupShown)return;giftPopupShown=true;document.g
 function closeGiftPopup(){document.getElementById('gift-popup').classList.remove('show');}
 function buildVideos(){const l=document.getElementById('videos-list');if(l.children.length>0)return;gifts.forEach(g=>{const c=document.createElement('div');c.className='video-card'+(g.type==='audio'?' audio-card':'');const sub=g.type==='audio'?'🎙️ Voice note':'🎬 Video message';let media;if(g.type==='audio'){const mp3=g.file.replace(/\.[a-z0-9]+$/i,'.mp3');media=`<audio controls preload="metadata"><source src="./${encodeURI(mp3)}" type="audio/mpeg"/><source src="./${encodeURI(g.file)}" type="audio/ogg"/></audio>`;}else{media=`<video controls playsinline preload="metadata"><source src="./${encodeURI(g.file)}" type="video/mp4"/></video>`;}c.innerHTML=`<div class="video-header"><div class="video-avatar">${g.emoji}</div><div class="vh-meta"><div class="video-name">${g.name}</div><div class="video-sub">${sub}</div></div></div>${media}`;l.appendChild(c);});}
 let photosBuilt=false;
-function buildPhotos(){if(photosBuilt)return;photosBuilt=true;const g=document.getElementById('photos-grid');photos.forEach((p)=>{const item=document.createElement('div');item.className='photo-item';item.innerHTML=`<img src="./${encodeURI(p.file)}" alt="Memory" loading="lazy"/>`+(p.caption?`<div class="photo-cap">${p.caption}</div>`:'');g.appendChild(item);});}
+function buildPhotos(){if(photosBuilt)return;photosBuilt=true;const g=document.getElementById('photos-grid');const CELLS=49;for(let i=0;i<CELLS;i++){const idx=i%photos.length;const im=document.createElement('img');im.src='./'+encodeURI(photos[idx].file);im.alt='Memory';im.loading='lazy';im.addEventListener('click',()=>openLightbox(idx));g.appendChild(im);}}
+let lbIndex=0;
+function openLightbox(i){lbIndex=i;renderLb();document.getElementById('photo-lightbox').classList.add('show');}
+function closeLightbox(){document.getElementById('photo-lightbox').classList.remove('show');}
+function lbNav(d){lbIndex=(lbIndex+d+photos.length)%photos.length;renderLb();}
+function renderLb(){document.getElementById('lb-img').src='./'+encodeURI(photos[lbIndex].file);document.getElementById('lb-count').textContent=(lbIndex+1)+' / '+photos.length;}
+(function(){const lb=document.getElementById('photo-lightbox');if(!lb)return;let sx=0;lb.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;},{passive:true});lb.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>40)lbNav(dx<0?1:-1);});lb.addEventListener('click',e=>{if(e.target===lb)closeLightbox();});})();
 start();
 </script>
 </body>
