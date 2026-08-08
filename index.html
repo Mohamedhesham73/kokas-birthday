@@ -546,10 +546,10 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--navy2);min-height:10
 </div>
 <script>
 const gifts=[
-{name:'3abeer',emoji:'🩷',type:'audio',file:'3abeer.ogg'},
-{name:'7ambozo',emoji:'⭐',type:'audio',file:'7ambozo.ogg'},
-{name:'afnan',emoji:'🌟',type:'audio',file:'afnan.ogg'},
-{name:'nahed',emoji:'💫',type:'audio',file:'nahed.ogg'},
+{name:'3abeer',emoji:'🩷',type:'audio',file:'3abeer.mp3'},
+{name:'7ambozo',emoji:'⭐',type:'audio',file:'7ambozo.mp3'},
+{name:'afnan',emoji:'🌟',type:'audio',file:'afnan.mp3'},
+{name:'nahed',emoji:'💫',type:'audio',file:'nahed.mp3'},
 {name:'7ameed',emoji:'🌸',type:'video',file:'7ameed.mp4'},
 {name:'mido',emoji:'💜',type:'video',file:'mido.mp4'},
 {name:'lamees',emoji:'🎀',type:'video',file:'lamees.mp4'},
@@ -717,6 +717,7 @@ function buildGiftPlayer(){const host=document.getElementById('videos-list');if(
   m.addEventListener('play',()=>{gpSetIcon(true);gpVis(true);});
   m.addEventListener('pause',()=>{gpSetIcon(false);gpVis(false);});
   m.addEventListener('ended',()=>{if(window._gpIndex<window._giftTracks.length-1)gpPlay(window._gpIndex+1);});
+  m.addEventListener('error',()=>{if(window._gpIndex<window._giftTracks.length-1)gpPlay(window._gpIndex+1);});
   window._gpIndex=0;gpRender(0);}
 function gpRender(i){window._gpIndex=i;const t=window._giftTracks[i];const isAudio=t.type==='audio';const m=document.getElementById('gp-media');const src='./'+encodeURI(t.file);if(m.getAttribute('src')!==src){m.setAttribute('src',src);m.load();}document.getElementById('gp-audiovis').style.display=isAudio?'flex':'none';document.getElementById('gp-label').textContent=(isAudio?'🎙️ Voice note':'🎬 Video')+' · '+(i+1)+' / '+window._giftTracks.length;document.querySelectorAll('#gp-dots .gp-dot').forEach((d,di)=>d.classList.toggle('on',di===i));gpTime();}
 function gpPlay(i){gpRender(i);const m=document.getElementById('gp-media');const p=m.play();if(p&&p.catch)p.catch(()=>{gpSetIcon(false);gpVis(false);});}
