@@ -237,7 +237,7 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--navy2);min-height:10
 .gp-seek::-moz-range-thumb{width:16px;height:16px;border:none;border-radius:50%;background:var(--ocean2);}
 .gp-times{display:flex;justify-content:space-between;font-size:10px;color:rgba(224,195,252,.6);margin:6px 2px 14px;}
 .gp-controls{display:flex;align-items:center;justify-content:center;gap:22px;margin-bottom:16px;}
-.gp-btn{background:rgba(255,255,255,.08);border:1px solid rgba(224,195,252,.25);color:var(--cream);width:46px;height:46px;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;}
+.gp-btn{background:rgba(201,167,240,.30);border:1px solid rgba(224,195,252,.6);color:#FFFBFD;width:46px;height:46px;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;}
 .gp-play{width:58px;height:58px;font-size:20px;background:linear-gradient(135deg,var(--ocean),var(--ocean2));border:none;color:#fff;}
 .gp-btn:active{transform:scale(.94);}
 .gp-dots{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:360px;margin:0 auto;}
@@ -249,11 +249,13 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--navy2);min-height:10
 .photos-title{font-family:'Playfair Display',serif;font-size:clamp(17px,5vw,28px);font-style:italic;font-weight:700;color:var(--navy);margin-bottom:16px;}
 .photos-grid{columns:2;gap:10px;}
 .photos-sub{font-size:11px;letter-spacing:1px;color:var(--navy2);opacity:0.65;text-align:center;margin-bottom:18px;font-style:italic;font-family:'Playfair Display',serif;}
-.heart-mosaic{width:min(420px,94vw);aspect-ratio:1.18/1;margin:2px auto 8px;display:grid;grid-template-columns:repeat(8,1fr);grid-auto-rows:1fr;gap:2px;clip-path:url(#heartClip);-webkit-clip-path:url(#heartClip);filter:drop-shadow(0 10px 24px rgba(209,77,139,0.25));}
+.heart-mosaic{width:min(440px,95vw);aspect-ratio:1.32/1;margin:2px auto 8px;display:grid;grid-template-columns:repeat(8,1fr);grid-auto-rows:1fr;gap:2px;clip-path:url(#heartClip);-webkit-clip-path:url(#heartClip);filter:drop-shadow(0 10px 24px rgba(209,77,139,0.25));}
 .heart-mosaic img{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer;}
 #photo-lightbox{position:fixed;inset:0;z-index:800;background:rgba(10,6,20,0.94);display:none;align-items:center;justify-content:center;flex-direction:column;padding:20px;}
 #photo-lightbox.show{display:flex;animation:finaleIn 0.3s ease both;}
-#lb-img{max-width:92vw;max-height:78vh;border-radius:8px;box-shadow:0 12px 44px rgba(0,0,0,.6);}
+#lb-img{max-width:92vw;max-height:78vh;border-radius:8px;box-shadow:0 12px 44px rgba(0,0,0,.6);touch-action:none;will-change:transform;}
+#lb-img.zoomanim{transition:transform .25s ease;}
+.lb-hint{margin-top:6px;color:rgba(255,255,255,.45);font-size:10px;letter-spacing:1px;}
 .lb-close{position:fixed;top:14px;right:16px;background:rgba(255,255,255,.14);border:none;color:#fff;font-size:18px;width:40px;height:40px;border-radius:50%;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .lb-nav{position:fixed;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.14);border:none;color:#fff;font-size:26px;line-height:1;width:44px;height:44px;border-radius:50%;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .lb-prev{left:12px;}.lb-next{right:12px;}
@@ -349,13 +351,14 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--navy2);min-height:10
 <canvas id="conf-canvas"></canvas>
 <canvas id="fw-canvas"></canvas>
 <button id="skip-btn" onclick="skipIntro()">Skip intro →</button>
-<svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs><clipPath id="heartClip" clipPathUnits="objectBoundingBox"><path d="M0.5,1 C0.5,1 0,0.72 0,0.3 C0,0.1 0.16,0 0.3,0 C0.42,0 0.5,0.1 0.5,0.2 C0.5,0.1 0.58,0 0.7,0 C0.84,0 1,0.1 1,0.3 C1,0.72 0.5,1 0.5,1 Z"/></clipPath></defs></svg>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs><clipPath id="heartClip" clipPathUnits="objectBoundingBox"><path d="M0.5,0.86 C0.35,0.66 0.04,0.55 0.04,0.32 C0.04,0.15 0.19,0.05 0.32,0.05 C0.43,0.05 0.5,0.14 0.5,0.21 C0.5,0.14 0.57,0.05 0.68,0.05 C0.81,0.05 0.96,0.15 0.96,0.32 C0.96,0.55 0.65,0.66 0.5,0.86 Z"/></clipPath></defs></svg>
 <div id="photo-lightbox">
   <button class="lb-close" onclick="closeLightbox()" aria-label="Close">✕</button>
   <button class="lb-nav lb-prev" onclick="lbNav(-1)" aria-label="Previous">‹</button>
   <img id="lb-img" alt="Memory"/>
   <button class="lb-nav lb-next" onclick="lbNav(1)" aria-label="Next">›</button>
   <div class="lb-count" id="lb-count"></div>
+  <div class="lb-hint">double-tap or pinch to zoom</div>
 </div>
 <div id="board-screen">
   <div class="board-airline">✦ KOKA AIRWAYS ✦</div>
@@ -565,7 +568,7 @@ const gifts=[
 {name:'sadan',emoji:'🎶',type:'audio',file:'sadan.mp3'},
 {name:'zo2aa',emoji:'🕊️',type:'audio',file:'zo2aa.mp3'}
 ];
-const photos=[{file:'memory1.jpeg',caption:''},{file:'memory2.jpeg',caption:''},{file:'sama.jpeg',caption:''},{file:'sama1.jpeg',caption:''},{file:'sama2.jpeg',caption:''},{file:'sama3.jpeg',caption:''},{file:'sama4.jpeg',caption:''},{file:'sama5.jpeg',caption:''},{file:'salah.jpeg',caption:''},{file:'salah1.jpeg',caption:''},{file:'salah2.jpeg',caption:''},{file:'salah3.jpeg',caption:''},{file:'salah4.jpeg',caption:''},{file:'salah5.jpeg',caption:''},{file:'salah6.jpeg',caption:''},{file:'salah7.jpeg',caption:''},{file:'salah8.jpeg',caption:''},{file:'salah9.jpeg',caption:''},{file:'salah10.jpeg',caption:''},{file:'salah11.jpeg',caption:''},{file:'salah12.jpeg',caption:''},{file:'salah13.jpeg',caption:''},{file:'sahar1.jpeg',caption:''},{file:'sahar2.jpeg',caption:''},{file:'pic.jpeg',caption:''},{file:'mahmoud.jpeg',caption:''},{file:'mahmoud1.jpeg',caption:''},{file:'mahmoud2.jpeg',caption:''},{file:'mahmoud3.jpeg',caption:''},{file:'mahmoud4.jpeg',caption:''},{file:'mahmoud5.jpeg',caption:''},{file:'H2.jpeg',caption:''},{file:'mohamed-hassan.jpeg',caption:''},{file:'mohamed-hassan1.jpeg',caption:''},{file:'pic1.jpeg',caption:''},{file:'farida-nour.jpeg',caption:''},{file:'menna.jpeg',caption:''},{file:'sorror1.jpeg',caption:''},{file:'sorror2.jpeg',caption:''}];
+const photos=[{file:'memory1.jpeg',caption:''},{file:'memory2.jpeg',caption:''},{file:'sama.jpeg',caption:''},{file:'sama1.jpeg',caption:''},{file:'sama2.jpeg',caption:''},{file:'sama3.jpeg',caption:''},{file:'sama4.jpeg',caption:''},{file:'sama5.jpeg',caption:''},{file:'salah.jpeg',caption:''},{file:'salah1.jpeg',caption:''},{file:'salah2.jpeg',caption:''},{file:'salah3.jpeg',caption:''},{file:'salah4.jpeg',caption:''},{file:'salah5.jpeg',caption:''},{file:'salah6.jpeg',caption:''},{file:'salah7.jpeg',caption:''},{file:'salah8.jpeg',caption:''},{file:'salah9.jpeg',caption:''},{file:'salah10.jpeg',caption:''},{file:'salah11.jpeg',caption:''},{file:'salah12.jpeg',caption:''},{file:'salah13.jpeg',caption:''},{file:'sahar1.jpeg',caption:''},{file:'sahar2.jpeg',caption:''},{file:'pic.jpeg',caption:''},{file:'mahmoud.jpeg',caption:''},{file:'mahmoud1.jpeg',caption:''},{file:'mahmoud2.jpeg',caption:''},{file:'mahmoud3.jpeg',caption:''},{file:'mahmoud4.jpeg',caption:''},{file:'mahmoud5.jpeg',caption:''},{file:'H2.jpeg',caption:''},{file:'mohamed-hassan.jpeg',caption:''},{file:'mohamed-hassan1.jpeg',caption:''},{file:'pic1.jpeg',caption:''},{file:'farida-nour.jpeg',caption:''},{file:'menna.jpeg',caption:''},{file:'sorror1.jpeg',caption:''},{file:'sorror2.jpeg',caption:''},{file:'lamees1.jpeg',caption:''},{file:'mohamed-hassan2.jpeg',caption:''}];
 const timeline=[
 {emoji:'✨',label:'The Beginning',text:`The day I first met KOKA — and understood why some people just change everything klam dah kan mn sana wa ta2rebn 10 ayam bzbt awl mara shoftek fee hyaty wa i never imagned that i will be friend with you but i was just really wanna know who is that girl who beats jana hesham like really cap mohamed hassan has a daughter and she is powerful and talented wow`},
 {emoji:'🌊',label:`A Moment I'll Never Forget`,text:`will idk like i have alot of moments but lemme tell you things i never said before like i can really remember when we talked like a little more when you were in india and suddenly you disappeared and i really didn't understand al bet dee aayza eh ahna kona lesa kwyseen ambar7 bas el7 b3d ta3ab wa mo3nah fhemt al dmagh al saaba dee another moment i will tell you a great moment tbh that day when you won against elsa you will never imagine how i was super proud of you yalahwy ana mmkn a23od sana ahky fee hgat kteer`},
@@ -704,7 +707,7 @@ let giftPopupShown=false;
 function showGiftPopup(){if(giftPopupShown)return;giftPopupShown=true;document.getElementById('gift-popup').classList.add('show');}
 function closeGiftPopup(){document.getElementById('gift-popup').classList.remove('show');if(document.getElementById('gp-media'))gpPlay(0);}
 function buildGiftPlayer(){const host=document.getElementById('videos-list');if(host.dataset.built)return;host.dataset.built='1';
-  window._giftTracks=[...gifts.filter(g=>g.type==='audio'),...gifts.filter(g=>g.type==='video')];
+  window._giftTracks=[...gifts.filter(g=>g.type==='audio'&&g.name!=='H1'),...gifts.filter(g=>g.type==='video'&&g.name!=='H1'),...gifts.filter(g=>g.name==='H1')];
   host.innerHTML=`<div class="gift-player"><div class="gp-stage"><video id="gp-media" playsinline preload="metadata"></video><div class="gp-audiovis" id="gp-audiovis"><div class="gp-emoji">🎙️</div><div class="gp-bars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="gp-label" id="gp-label"></div><input type="range" class="gp-seek" id="gp-seek" min="0" max="1000" value="0"><div class="gp-times"><span id="gp-cur">0:00</span><span id="gp-dur">0:00</span></div><div class="gp-controls"><button class="gp-btn" id="gp-prev" aria-label="Previous">⏮</button><button class="gp-btn gp-play" id="gp-play" aria-label="Play or pause">▶</button><button class="gp-btn" id="gp-next" aria-label="Next">⏭</button></div><div class="gp-dots" id="gp-dots"></div></div>`;
   const dots=host.querySelector('#gp-dots');
   window._giftTracks.forEach((t,i)=>{const d=document.createElement('button');d.className='gp-dot'+(t.type==='video'?' vid':'');d.title=(t.type==='audio'?'Voice note ':'Video ')+(i+1);d.addEventListener('click',()=>gpPlay(i));dots.appendChild(d);});
@@ -727,13 +730,22 @@ function gpFmt(s){s=Math.floor(s||0);return Math.floor(s/60)+':'+String(Math.max
 function gpSetIcon(p){const b=document.getElementById('gp-play');if(b)b.textContent=p?'⏸':'▶';}
 function gpVis(on){const v=document.getElementById('gp-audiovis');if(v)v.classList.toggle('playing',on);}
 let photosBuilt=false;
-function buildPhotos(){if(photosBuilt)return;photosBuilt=true;const g=document.getElementById('photos-grid');const CELLS=56;for(let i=0;i<CELLS;i++){const idx=i%photos.length;const im=document.createElement('img');im.src='./'+encodeURI(photos[idx].file);im.alt='Memory';im.loading='lazy';im.addEventListener('click',()=>openLightbox(idx));g.appendChild(im);}}
+function buildPhotos(){if(photosBuilt)return;photosBuilt=true;const g=document.getElementById('photos-grid');const arr=photos.slice();for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=arr[i];arr[i]=arr[j];arr[j]=t;}window._memPhotos=arr;const CELLS=48;for(let i=0;i<CELLS;i++){const idx=i%arr.length;const im=document.createElement('img');im.src='./'+encodeURI(arr[idx].file);im.alt='Memory';im.loading='lazy';im.addEventListener('click',()=>openLightbox(idx));g.appendChild(im);}}
 let lbIndex=0;
 function openLightbox(i){lbIndex=i;renderLb();document.getElementById('photo-lightbox').classList.add('show');}
 function closeLightbox(){document.getElementById('photo-lightbox').classList.remove('show');}
-function lbNav(d){lbIndex=(lbIndex+d+photos.length)%photos.length;renderLb();}
-function renderLb(){document.getElementById('lb-img').src='./'+encodeURI(photos[lbIndex].file);document.getElementById('lb-count').textContent=(lbIndex+1)+' / '+photos.length;}
-(function(){const lb=document.getElementById('photo-lightbox');if(!lb)return;let sx=0;lb.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;},{passive:true});lb.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>40)lbNav(dx<0?1:-1);});lb.addEventListener('click',e=>{if(e.target===lb)closeLightbox();});})();
+function lbNav(d){const arr=window._memPhotos||photos;lbIndex=(lbIndex+d+arr.length)%arr.length;renderLb();}
+function renderLb(){const arr=window._memPhotos||photos;document.getElementById('lb-img').src='./'+encodeURI(arr[lbIndex].file);document.getElementById('lb-count').textContent=(lbIndex+1)+' / '+arr.length;if(window._lbResetZoom)window._lbResetZoom();}
+(function(){const lb=document.getElementById('photo-lightbox');if(!lb)return;lb.addEventListener('click',e=>{if(e.target===lb)closeLightbox();});
+ const img=document.getElementById('lb-img');if(!img)return;let scale=1,tx=0,ty=0,sd=0,ss=1,px=0,py=0,sx=0,moved=false,lastTap=0;
+ function apply(){img.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+')';}
+ window._lbResetZoom=function(){scale=1;tx=0;ty=0;img.classList.remove('zoomanim');apply();};
+ function d2(t){return Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);}
+ img.addEventListener('touchstart',e=>{if(e.touches.length===2){sd=d2(e.touches);ss=scale;img.classList.remove('zoomanim');}else if(e.touches.length===1){sx=px=e.touches[0].clientX;py=e.touches[0].clientY;moved=false;}},{passive:false});
+ img.addEventListener('touchmove',e=>{if(e.touches.length===2){e.preventDefault();scale=Math.min(4,Math.max(1,ss*(d2(e.touches)/sd)));apply();moved=true;}else if(e.touches.length===1&&scale>1){e.preventDefault();const t=e.touches[0];tx+=t.clientX-px;ty+=t.clientY-py;px=t.clientX;py=t.clientY;apply();moved=true;}},{passive:false});
+ img.addEventListener('touchend',e=>{if(!moved){const now=Date.now();if(now-lastTap<300){img.classList.add('zoomanim');if(scale>1){scale=1;tx=0;ty=0;}else{scale=2.5;}apply();lastTap=0;return;}lastTap=now;}if(scale<=1&&e.changedTouches.length){const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>45)lbNav(dx<0?1:-1);}if(scale<=1.02){scale=1;tx=0;ty=0;apply();}});
+ img.addEventListener('wheel',e=>{e.preventDefault();img.classList.remove('zoomanim');scale=Math.min(4,Math.max(1,scale-e.deltaY*0.002));if(scale===1){tx=0;ty=0;}apply();},{passive:false});
+ img.addEventListener('dblclick',()=>{img.classList.add('zoomanim');if(scale>1){scale=1;tx=0;ty=0;}else scale=2.5;apply();});})();
 start();
 </script>
 </body>
